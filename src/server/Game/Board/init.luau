@@ -7,71 +7,24 @@ local shared = ReplicatedStorage.Shared
 
 
 local Types = require(shared.Types)
+local BoardUtils = require(script.Utils)
+local Config = require(script.Config)
+local Piece = require(script.Piece)
 
 
 type Board = Types.Board
-
-
-local ROWS: number = 6
-local COLUMNS: number = 6
-local ASCII_OFFSET: number = 64
+type PieceType = Types.PieceType
 
 
 local Board = {}
 
 
-local function validateCoordinates(x: number?, y: number?): boolean
-    if typeof(x) ~= "number" or typeof(y) ~= "number" then
-        return false
-    end
-
-    if x < 1 or x > ROWS then
-        return false
-    end
-
-    if y < 1 or y > COLUMNS then
-        return false
-    end
-
-    return true
-end
-
-
-local function toAddress(x: number, y: number): string?
-    if not validateCoordinates(x, y) then
-        return
-    end
-
-    local row = string.char(x + ASCII_OFFSET)
-    local column = tostring(y)
-
-    local address = row..column
-
-    return address
-end
-
-
--- local function toCoordinates(address: string): (number?, number?)
---     local row = address:gsub("%A", "")
---     local column = address:gsub("%D", "")
-
---     local x = string.byte(row) - ASCII_OFFSET
---     local y = tonumber(column)
-
---     if not validateCoordinates(x, y) then
---         return
---     end
-
---     return x, y
--- end
-
-
 function Board.new(): Board
-    local board: Board = {}
+    local board = {} :: Board
 
-    for x = 1, ROWS do
-        for y = 1, COLUMNS do
-            local address = toAddress(x, y)
+    for y = 1, Config.rows do
+        for x = 1, Config.columns do
+            local address = BoardUtils.toAddress(x, y)
 
             if not address then
                 continue
@@ -90,15 +43,19 @@ function Board.validate(board: Board, input: Board): boolean
         return false
     end
 
+    local pieces = {}
+
     for address, pieceType in board do
-        local inputPieceType = input[address]
+        local inputPieceType: PieceType = input[address]
 
         if not inputPieceType then
             return false
         end
 
-        if pieceType == "none" and (inputPieceType == "none" or inputPieceType == "blocker") then
-            return false
+        if pieceType == "none" then
+            if inputPieceType == "none" or inputPieceType == "blocker" then
+                return false
+            end
         end
 
         if pieceType == "blocker" then
@@ -109,10 +66,24 @@ function Board.validate(board: Board, input: Board): boolean
             end
         end
 
-        -- advanced validation (sort piece by type and validate shape)
+        if not Piece.isAType(inputPieceType) then
+            return false
+        end
+
+        if not pieces[inputPieceType] then
+            pieces[inputPieceType] = {}
+        end
+
+        table.insert(pieces[inputPieceType], address)
     end
 
-    return true -- temporary
+    for pieceType, addresses in pieces do
+        if not Piece.validateShape(pieceType :: PieceType, addresses) then
+            return false
+        end
+    end
+
+    return true
 end
 
 

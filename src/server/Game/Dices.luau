@@ -15,7 +15,7 @@ local Dices = {}
 
 
 function Dices.roll(): { string }
-    local addresses: { string } = table.create(#dices)
+    local addresses = table.create(#dices)
 
     for index, faces in dices do
         local faceIndex = math.random(1, #faces)
