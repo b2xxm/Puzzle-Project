@@ -101,10 +101,12 @@ function Board.validate(board: Board, input: Board): boolean
             return false
         end
 
-        if pieceType == "blocker" and inputPieceType == "blocker" then
-            continue
-        else
-            return false
+        if pieceType == "blocker" then
+            if inputPieceType == "blocker" then
+                continue
+            else
+                return false
+            end
         end
 
         -- advanced validation (sort piece by type and validate shape)
