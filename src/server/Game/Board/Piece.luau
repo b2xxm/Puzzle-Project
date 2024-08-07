@@ -8,6 +8,7 @@ local shared = ReplicatedStorage.Shared
 
 local Types = require(shared.Types)
 local BoardUtils = require(script.Parent.Utils)
+local Config = require(script.Parent.Config)
 
 
 type Board = Types.Board
@@ -38,10 +39,10 @@ local Piece = {}
 
 local function getShapeBounds(addresses: { string }): ShapeBounds
     local shapeBounds = {
-        top = math.huge,
-        bottom = 0,
-        left = math.huge,
-        right = 0
+        top = Config.rows,
+        bottom = 1,
+        left = Config.columns,
+        right = 1
     }
 
     for _, address in addresses do

@@ -22,6 +22,8 @@ local Game = {}
 
 
 function Game.start(): ()
+    table.clear(submissions)
+
     local blockerAddresses = Dices.roll()
 
     Board.setBlocked(boardCache, blockerAddresses)
