@@ -74,14 +74,14 @@ end
 
 
 function Piece.validateShape(pieceType: PieceType, addresses: { string }): boolean
-    local shapeBounds = getShapeBounds(addresses)
-    local shapeBinary = {}
+    local bounds = getShapeBounds(addresses)
+    local shapeRows = {}
 
-    for y = shapeBounds.top, shapeBounds.bottom do
-        local binaryRow = 0
+    for y = bounds.top, bounds.bottom do
+        local rowBinary = 0
 
-        for x = shapeBounds.left, shapeBounds.right do
-            binaryRow = bit32.lshift(binaryRow, 1)
+        for x = bounds.left, bounds.right do
+            rowBinary = bit32.lshift(rowBinary, 1)
 
             local address = BoardUtils.toAddress(x, y)
 
@@ -90,35 +90,35 @@ function Piece.validateShape(pieceType: PieceType, addresses: { string }): boole
             end
 
             if table.find(addresses, address) then
-                binaryRow += 1
+                rowBinary += 1
             end
         end
 
-        table.insert(shapeBinary, binaryRow)
+        table.insert(shapeRows, rowBinary)
     end
 
     local variations = pieceDatas[pieceType]
 
-    for _, pieceData in variations do
-        local isMatch = true
+    for _, variation in variations do
+        local matches = true
 
-        for index, binary in pieceData do
-            if shapeBinary[index] == binary then
+        for index, row in variation do
+            if shapeRows[index] == row then
                 continue
             end
 
-            isMatch = false
-
+            matches = false
             break
         end
 
-        if isMatch then
+        if matches then
             return true
         end
     end
 
     return false
 end
+
 
 
 return Piece
