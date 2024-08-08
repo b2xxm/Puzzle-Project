@@ -46,7 +46,7 @@ function Board.validate(board: Board, input: Board): boolean
     local pieces = {}
 
     for address, pieceType in board do
-        local inputPieceType: PieceType = input[address]
+        local inputPieceType = input[address]
 
         if not inputPieceType then
             return false
