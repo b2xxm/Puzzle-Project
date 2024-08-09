@@ -7,8 +7,8 @@ local shared = ReplicatedStorage.Shared
 
 
 local Types = require(shared.Types)
-local BoardUtils = require(script.Parent.Utils)
-local Config = require(script.Parent.Config)
+local BoardUtils = require(shared.BoardService.Utils)
+local Config = require(shared.BoardService.Config)
 
 
 type Board = Types.Board
@@ -34,7 +34,7 @@ local pieceDatas: { [PieceType]: { { number } } } = {
 }
 
 
-local Piece = {}
+local PieceService = {}
 
 
 local function getShapeBounds(addresses: { string }): ShapeBounds
@@ -62,7 +62,7 @@ local function getShapeBounds(addresses: { string }): ShapeBounds
 end
 
 
-function Piece.isAType(toCheck: string): boolean
+function PieceService.isAType(toCheck: string): boolean
     for _, pieceType: PieceType in pieceTypes do
         if toCheck == pieceType then
             return true
@@ -73,7 +73,7 @@ function Piece.isAType(toCheck: string): boolean
 end
 
 
-function Piece.validateShape(pieceType: PieceType, addresses: { string }): boolean
+function PieceService.validateShape(pieceType: PieceType, addresses: { string }): boolean
     local bounds = getShapeBounds(addresses)
     local shapeRows = {}
 
@@ -121,4 +121,4 @@ end
 
 
 
-return Piece
+return PieceService

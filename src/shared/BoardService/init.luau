@@ -9,17 +9,17 @@ local shared = ReplicatedStorage.Shared
 local Types = require(shared.Types)
 local BoardUtils = require(script.Utils)
 local Config = require(script.Config)
-local Piece = require(script.Piece)
+local PieceService = require(script.PieceService)
 
 
 type Board = Types.Board
 type PieceType = Types.PieceType
 
 
-local Board = {}
+local BoardService = {}
 
 
-function Board.new(): Board
+function BoardService.new(): Board
     local board = {} :: Board
 
     for y = 1, Config.rows do
@@ -38,7 +38,7 @@ function Board.new(): Board
 end
 
 
-function Board.validate(board: Board, input: Board): boolean
+function BoardService.validate(board: Board, input: Board): boolean
     if typeof(input) ~= "table" then
         return false
     end
@@ -66,7 +66,7 @@ function Board.validate(board: Board, input: Board): boolean
             end
         end
 
-        if not Piece.isAType(inputPieceType) then
+        if not PieceService.isAType(inputPieceType) then
             return false
         end
 
@@ -78,7 +78,7 @@ function Board.validate(board: Board, input: Board): boolean
     end
 
     for pieceType, addresses in pieces do
-        if not Piece.validateShape(pieceType :: PieceType, addresses) then
+        if not PieceService.validateShape(pieceType :: PieceType, addresses) then
             return false
         end
     end
@@ -87,18 +87,18 @@ function Board.validate(board: Board, input: Board): boolean
 end
 
 
-function Board.setBlocked(board: Board, addresses: { string }): ()
+function BoardService.setBlocked(board: Board, addresses: { string }): ()
     for _, address in addresses do
         board[address] = "blocker"
     end
 end
 
 
-function Board.reset(board: Board): ()
+function BoardService.reset(board: Board): ()
     for address in board do
         board[address] = "none"
     end
 end
 
 
-return Board
+return BoardService
