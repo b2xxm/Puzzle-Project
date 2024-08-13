@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -8,30 +9,41 @@ local remotes = ReplicatedStorage.Remotes
 
 
 local Types = require(shared.Types)
-local Dices = require(script.Dices)
+local PlayerService = require(ServerScriptService.Server.PlayerService)
 local BoardService = require(shared.BoardService)
+local Dices = require(script.Dices)
 
 
 type Board = Types.Board
 
 
 local submissions: { { player: Player, solution: Board } } = {}
-local boardCache: Board = BoardService.new()
+
+local cache: { board: Board, blocked: { string } } = {
+    board = BoardService.new(),
+    blocked = {}
+}
 
 
 local Game = {}
 
 
 function Game.start(): ()
-    BoardService.reset(boardCache)
-    table.clear(submissions)
+    BoardService.reset(cache.board)
 
-    local blockerAddresses = Dices.roll()
-    BoardService.setBlocked(boardCache, blockerAddresses)
+    table.clear(submissions)
+    cache.blocked = Dices.roll()
+
+    BoardService.setBlocked(cache.board, cache.blocked)
 
     -- start timer limit
     
-    remotes.BroadcastNewBoard:FireAllClients(blockerAddresses)
+    remotes.BroadcastNewBoard:FireAllClients(cache.blocked)
+end
+
+
+function Game.broadcastSpecific(player: Player): ()
+    remotes.BroadcastNewBoard:FireClient(player, cache.blocked)
 end
 
 
@@ -42,7 +54,7 @@ end
 
 
 function Game.submit(player: Player, solution: Board): ()
-    if BoardService.validate(boardCache, solution) then
+    if BoardService.validate(cache.board, solution) then
         local submission = {}
         submission.player = player
         submission.solution = solution
@@ -50,6 +62,9 @@ function Game.submit(player: Player, solution: Board): ()
         table.insert(submissions, submission)
     end
 end
+
+
+PlayerService.connectAdded(Game.broadcastSpecific)
 
 
 return Game

@@ -1,1 +1,6 @@
-print("Hello world, from client!")
+--! strict
+
+local interface = script.Interface
+
+
+local Board = require(interface.Board)

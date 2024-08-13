@@ -101,4 +101,31 @@ function BoardService.reset(board: Board): ()
 end
 
 
+function BoardService.placePiece(board: Board, occupyingAddresses: { string }): boolean
+    local pieceType = PieceService.getPieceType(occupyingAddresses)
+
+    if pieceType == "none" then
+        return false
+    end
+
+    local changedCell = {} :: { string }
+
+    for _, address in occupyingAddresses do
+        if board[address] ~= "none" then
+            for _, changedAddress in changedCell do
+                board[changedAddress] = "none"
+            end
+
+            return false
+        end
+
+        board[address] = pieceType :: PieceType
+
+        table.insert(changedCell, address)
+    end
+
+    return true
+end
+
+
 return BoardService
