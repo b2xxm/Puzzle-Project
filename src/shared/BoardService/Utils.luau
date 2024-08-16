@@ -1,6 +1,6 @@
 --!strict
 
-local Config = require(script.Parent.Config)
+local BoardConfig = require(script.Parent.Config)
 
 
 local ASCII_OFFSET: number = 64
@@ -14,11 +14,11 @@ local function validateCoordinates(x: number?, y: number?): boolean
         return false
     end
 
-    if x < 1 or x > Config.columns then
+    if x < 1 or x > BoardConfig.columns then
         return false
     end
 
-    if y < 1 or y > Config.rows then
+    if y < 1 or y > BoardConfig.rows then
         return false
     end
 
@@ -31,7 +31,7 @@ function Utils.toAddress(x: number, y: number): string?
         return
     end
 
-    local row = string.char(y + ASCII_OFFSET)
+    local row = Utils.getRow(y)
     local column = tostring(x)
 
     return row .. column
@@ -57,6 +57,11 @@ function Utils.seperateAddress(address: string): (string, string)
     local column = address:gsub("%D", "")
 
     return row, column
+end
+
+
+function Utils.getRow(y: number): string
+    return string.char(y + ASCII_OFFSET)
 end
 
 

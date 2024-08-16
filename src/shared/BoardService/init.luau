@@ -8,7 +8,7 @@ local shared = ReplicatedStorage.Shared
 
 local Types = require(shared.Types)
 local BoardUtils = require(script.Utils)
-local Config = require(script.Config)
+local BoardConfig = require(script.Config)
 local PieceService = require(script.PieceService)
 
 
@@ -22,8 +22,8 @@ local BoardService = {}
 function BoardService.new(): Board
     local board = {} :: Board
 
-    for y = 1, Config.rows do
-        for x = 1, Config.columns do
+    for y = 1, BoardConfig.rows do
+        for x = 1, BoardConfig.columns do
             local address = BoardUtils.toAddress(x, y)
 
             if not address then

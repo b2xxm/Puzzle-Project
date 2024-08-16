@@ -10,6 +10,8 @@ local remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
+local BoardUtils = require(shared.BoardService.Utils)
+local BoardConfig = require(shared.BoardService.Config)
 local CellColours = require(script.CellColours)
 
 
@@ -25,9 +27,48 @@ local cells: { [string]: Frame } = {}
 local Board = {}
 
 
+local function createRowContainer(y: number): Frame
+    local container = Instance.new("Frame")
+    container.Name = BoardUtils.getRow(y)
+    container.LayoutOrder = y
+    container.BackgroundTransparency = 1
+
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.Padding = UDim.new(0, 3)
+    listLayout.FillDirection = Enum.FillDirection.Horizontal
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Wraps = false
+    listLayout.HorizontalFlex = Enum.UIFlexAlignment.Fill
+    listLayout.VerticalFlex = Enum.UIFlexAlignment.Fill
+    listLayout.Parent = container
+    
+    return container
+end
+
+
+local function createCell(x: number, y: number): Frame?
+    local address = BoardUtils.toAddress(x, y)
+
+    if not address then
+        return
+    end
+
+    local cell = Instance.new("Frame")
+    cell.Name = address
+    cell.LayoutOrder = x
+    cell.BorderSizePixel = 0
+    
+    return cell
+end
+
+
 local function newGame(blockerAddresses: { string }): ()
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
+
+    for address, _ in board do
+        cells[address].BackgroundColor3 = CellColours.unoccupied
+    end
     
     for _, address in blockerAddresses do
         cells[address].BackgroundColor3 = CellColours.blocked
@@ -44,23 +85,22 @@ local function initialise(): ()
 
     local rows = grid:WaitForChild("Rows")
 
-    for _, rowContainer in rows:GetChildren() do
-        if not rowContainer:IsA("Frame") then
-            continue
-        end
+    for y = 1, BoardConfig.rows do
+        local rowContainer = createRowContainer(y)
 
-        local row = rowContainer.Name
+        for x = 1, BoardConfig.columns do
+            local cell = createCell(x, y)
 
-        for _, cell in rowContainer:GetChildren() do
-            if not cell:IsA("Frame") then
+            if not cell then
                 continue
             end
 
-            local column = cell.Name
-            local address = row .. column
-
-            cells[address] = cell
+            cells[cell.Name] = cell
+            
+            cell.Parent = rowContainer
         end
+
+        rowContainer.Parent = rows
     end
 end
 
