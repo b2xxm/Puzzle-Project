@@ -57,6 +57,15 @@ local function createCell(x: number, y: number): Frame?
     cell.Name = address
     cell.LayoutOrder = x
     cell.BorderSizePixel = 0
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.AnchorPoint = Vector2.new(0.5, 0.5)
+    fill.Position = UDim2.fromScale(0.5, 0.5)
+    fill.Size = UDim2.fromScale(0.7, 0.7)
+    fill.BorderSizePixel = 0
+    fill.BackgroundColor3 = CellColours.unoccupied
+    fill.Parent = cell
     
     return cell
 end
@@ -67,11 +76,19 @@ local function newGame(blockerAddresses: { string }): ()
     BoardService.setBlocked(board, blockerAddresses)
 
     for address, _ in board do
-        cells[address].BackgroundColor3 = CellColours.unoccupied
+        local cell = cells[address]
+        local fill = cell:FindFirstChild("Fill") :: Frame
+        
+        cell.BackgroundColor3 = CellColours.unoccupied
+        fill.BackgroundColor3 = CellColours.unoccupied
     end
     
     for _, address in blockerAddresses do
-        cells[address].BackgroundColor3 = CellColours.blocked
+        local cell = cells[address]
+        local fill = cell:FindFirstChild("Fill") :: Frame
+        
+        cell.BackgroundColor3 = CellColours.blocked
+        fill.BackgroundColor3 = CellColours.blocked
     end
 end
 
@@ -96,7 +113,7 @@ local function initialise(): ()
             end
 
             cells[cell.Name] = cell
-            
+
             cell.Parent = rowContainer
         end
 
