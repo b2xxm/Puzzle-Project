@@ -11,6 +11,18 @@
         "$className": "Folder",
         "BroadcastNewBoard": {
           "$className": "RemoteEvent"
+        },
+        "UpdatePlayerList": {
+          "$className": "RemoteEvent"
+        }
+      },
+      "Prefabs": {
+        "$className": "Folder",
+        "Board": {
+          "$className": "Folder"
+        },
+        "PlayerList": {
+          "$className": "Folder"
         }
       }
     },

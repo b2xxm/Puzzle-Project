@@ -1,7 +1,6 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -9,7 +8,6 @@ local remotes = ReplicatedStorage.Remotes
 
 
 local Types = require(shared.Types)
-local PlayerService = require(ServerScriptService.Server.PlayerService)
 local BoardService = require(shared.BoardService)
 local Dices = require(script.Dices)
 
@@ -62,9 +60,6 @@ function Game.submit(player: Player, solution: Board): ()
         table.insert(submissions, submission)
     end
 end
-
-
-PlayerService.connectAdded(Game.broadcastSpecific)
 
 
 return Game

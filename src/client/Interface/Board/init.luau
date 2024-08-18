@@ -4,8 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 
-local shared = ReplicatedStorage:WaitForChild("Shared")
-local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local shared = ReplicatedStorage.Shared
+local prefabs = ReplicatedStorage.Prefabs
 
 
 local Types = require(shared.Types)
@@ -28,19 +28,10 @@ local Board = {}
 
 
 local function createRowContainer(y: number): Frame
-    local container = Instance.new("Frame")
+    local containerPrefab = prefabs.Board:WaitForChild("RowContainer")
+    local container = containerPrefab:Clone()
     container.Name = BoardUtils.getRow(y)
     container.LayoutOrder = y
-    container.BackgroundTransparency = 1
-
-    local listLayout = Instance.new("UIListLayout")
-    listLayout.Padding = UDim.new(0, 3)
-    listLayout.FillDirection = Enum.FillDirection.Horizontal
-    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    listLayout.Wraps = false
-    listLayout.HorizontalFlex = Enum.UIFlexAlignment.Fill
-    listLayout.VerticalFlex = Enum.UIFlexAlignment.Fill
-    listLayout.Parent = container
     
     return container
 end
@@ -53,51 +44,20 @@ local function createCell(x: number, y: number): Frame?
         return
     end
 
-    local cell = Instance.new("Frame")
+    local cellPrefab = prefabs.Board:WaitForChild("Cell")
+    local cell = cellPrefab:Clone()
     cell.Name = address
     cell.LayoutOrder = x
-    cell.BorderSizePixel = 0
-
-    local fill = Instance.new("Frame")
-    fill.Name = "Fill"
-    fill.AnchorPoint = Vector2.new(0.5, 0.5)
-    fill.Position = UDim2.fromScale(0.5, 0.5)
-    fill.Size = UDim2.fromScale(0.7, 0.7)
-    fill.BorderSizePixel = 0
-    fill.BackgroundColor3 = CellColours.unoccupied
-    fill.Parent = cell
     
     return cell
-end
-
-
-local function newGame(blockerAddresses: { string }): ()
-    BoardService.reset(board)
-    BoardService.setBlocked(board, blockerAddresses)
-
-    for address, _ in board do
-        local cell = cells[address]
-        local fill = cell:FindFirstChild("Fill") :: Frame
-        
-        cell.BackgroundColor3 = CellColours.unoccupied
-        fill.BackgroundColor3 = CellColours.unoccupied
-    end
-    
-    for _, address in blockerAddresses do
-        local cell = cells[address]
-        local fill = cell:FindFirstChild("Fill") :: Frame
-        
-        cell.BackgroundColor3 = CellColours.blocked
-        fill.BackgroundColor3 = CellColours.blocked
-    end
 end
 
 
 local function initialise(): ()
     local playerGui = player.PlayerGui
     
-    local boardUi = playerGui:WaitForChild("BoardUI")
-    local boardFrame = boardUi:WaitForChild("Board")
+    local gameUi = playerGui:WaitForChild("GameUi")
+    local boardFrame = gameUi:WaitForChild("Board")
     local grid = boardFrame:WaitForChild("Grid")
 
     local rows = grid:WaitForChild("Rows")
@@ -122,9 +82,29 @@ local function initialise(): ()
 end
 
 
-initialise()
+function Board.newGame(blockerAddresses: { string }): ()
+    BoardService.reset(board)
+    BoardService.setBlocked(board, blockerAddresses)
 
-remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
+    for address, _ in board do
+        local cell = cells[address]
+        local fill = cell:FindFirstChild("Fill") :: Frame
+        
+        cell.BackgroundColor3 = CellColours.unoccupied
+        fill.BackgroundColor3 = CellColours.unoccupied
+    end
+    
+    for _, address in blockerAddresses do
+        local cell = cells[address]
+        local fill = cell:FindFirstChild("Fill") :: Frame
+        
+        cell.BackgroundColor3 = CellColours.blocked
+        fill.BackgroundColor3 = CellColours.blocked
+    end
+end
+
+
+initialise()
 
 
 return Board
