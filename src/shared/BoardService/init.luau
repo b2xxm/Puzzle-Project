@@ -9,7 +9,7 @@ local shared = ReplicatedStorage.Shared
 local Types = require(shared.Types)
 local BoardUtils = require(script.Utils)
 local BoardConfig = require(script.Config)
-local PieceService = require(script.PieceService)
+local PieceService = require(shared.PieceService)
 
 
 type Board = Types.Board
