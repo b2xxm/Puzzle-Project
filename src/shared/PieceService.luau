@@ -13,13 +13,16 @@ local BoardConfig = require(shared.BoardService.Config)
 
 type Board = Types.Board
 type PieceType = Types.PieceType
+type PieceShape = Types.PieceShape
 type PieceData = Types.PieceData
+
+type PieceVariations = { [PieceType]: { PieceShape } }
 type ShapeBounds = { top: number, bottom: number, left: number, right: number }
 
 
 local pieceTypes: { PieceType } = { "red", "orange", "yellow", "green", "lblue", "dblue", "purple", "brown", "grey", "blocker", "none" }
 
-local pieceDatas: { [PieceType]: { { number } } } = {
+local pieceVariationsMap: PieceVariations = {
     red = { { 0b110, 0b011 }, { 0b01, 0b11, 0b10 }, { 0b011, 0b110 }, { 0b10, 0b11, 0b01 } },
     orange = { { 0b111 }, { 0b1, 0b1, 0b1 } },
     yellow = { { 0b010, 0b111 }, { 0b10, 0b11, 0b10 }, { 0b111, 0b010 }, { 0b01, 0b11, 0b01 } },
@@ -75,8 +78,8 @@ end
 
 
 function PieceService.validateShape(pieceType: PieceType, occupyingAddresses: { string }): boolean
-    local pieceShape = PieceService.getPieceData(occupyingAddresses).data
-    local variations = pieceDatas[pieceType]
+    local pieceShape = PieceService.getPieceDataByAddress(occupyingAddresses).data
+    local variations = pieceVariationsMap[pieceType]
 
     if not variations then
         return false
@@ -104,13 +107,13 @@ function PieceService.validateShape(pieceType: PieceType, occupyingAddresses: { 
 end
 
 
-function PieceService.getPieceData(addresses: { string }): PieceData
+function PieceService.getPieceDataByAddress(addresses: { string }): PieceData
     local shapeBounds = getShapeBounds(addresses)
 
     local shapeRows = {}
     local metadata = {
-        rows = (shapeBounds.bottom - shapeBounds.top) + 1,
-        columns = (shapeBounds.right - shapeBounds.left) + 1
+        height = (shapeBounds.bottom - shapeBounds.top) + 1,
+        width = (shapeBounds.right - shapeBounds.left) + 1
     }
 
     for y = shapeBounds.top, shapeBounds.bottom do
@@ -137,14 +140,23 @@ function PieceService.getPieceData(addresses: { string }): PieceData
 end
 
 
-function PieceService.getPieceType(occupyingAddresses: { string }): PieceType
-    for _, pieceType: PieceType in pieceTypes do
-        if PieceService.validateShape(pieceType, occupyingAddresses) then
-            return pieceType
-        end
-    end
+function PieceService.getPieceDataByShape(shape: PieceShape): PieceData
+    local height = #shape
+    local width = 0
 
-    return "none"
+    local mergedRows = bit32.bor(table.unpack(shape))
+
+    while true do
+        local bit = bit32.extract(mergedRows, width, 1)
+        
+        if bit == 0 then
+            break
+        end
+        
+        width += 1
+    end
+   
+    return { data = shape, metadata = { height = height, width = width } }
 end
 
 
@@ -154,19 +166,19 @@ function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
 
     local newShapeRows = {}
     local newMetadata = {
-		rows = oldMetadata.columns,
-		columns = oldMetadata.rows
+		height = oldMetadata.width,
+		width = oldMetadata.height
 	}
 
     local positionStart, positionEnd, indexStart, indexEnd, step
 
     if clockwise then
-        positionStart, positionEnd = oldMetadata.columns, 1 
-        indexStart, indexEnd = oldMetadata.rows, 1
+        positionStart, positionEnd = oldMetadata.width - 1, 0
+        indexStart, indexEnd = oldMetadata.height - 1, 0
         step = -1
     else
-        positionStart, positionEnd = 1, oldMetadata.columns
-        indexStart, indexEnd = 1, oldMetadata.rows
+        positionStart, positionEnd = 0, oldMetadata.width - 1
+        indexStart, indexEnd = 0, oldMetadata.height - 1
         step = 1
     end
 
@@ -177,7 +189,7 @@ function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
             newRowBinary = bit32.lshift(newRowBinary, 1)
 
             local oldRowBinary = oldShapeRows[rowIndex]
-            local bit = bit32.extract(oldRowBinary, bitPosition - 1, 1)
+            local bit = bit32.extract(oldRowBinary, bitPosition, 1)
 
             newRowBinary += bit
         end
@@ -197,7 +209,7 @@ function PieceService.flipHorizontal(pieceData: PieceData): ()
     for _, row in oldShapeRows do
         local flippedRow = 0
 
-        for bitPosition = 1, pieceData.metadata.columns do
+        for bitPosition = 1, pieceData.metadata.width do
             flippedRow = bit32.lshift(flippedRow, 1)
             
             local bit = bit32.extract(row, bitPosition - 1, 1)
@@ -221,6 +233,11 @@ function PieceService.flipVertical(pieceData: PieceData): ()
     end
 
     pieceData.data = newShapeRows
+end
+
+
+function PieceService.getPieceDatas(): PieceVariations
+    return pieceVariationsMap
 end
 
 

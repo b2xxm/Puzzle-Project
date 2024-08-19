@@ -12,6 +12,7 @@ local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
 local BoardUtils = require(shared.BoardService.Utils)
 local BoardConfig = require(shared.BoardService.Config)
+local BoardInterfaceConfig = require(script.Config)
 local CellColours = require(script.CellColours)
 
 
@@ -32,6 +33,9 @@ local function createRowContainer(y: number): Frame
     local container = containerPrefab:Clone()
     container.Name = BoardUtils.getRow(y)
     container.LayoutOrder = y
+
+    local listLayout = container:WaitForChild("UIListLayout")
+    listLayout.Padding = UDim.new(0, BoardInterfaceConfig.padding)
     
     return container
 end
@@ -61,6 +65,8 @@ local function initialise(): ()
     local grid = boardFrame:WaitForChild("Grid")
 
     local rows = grid:WaitForChild("Rows")
+    local listLayout = rows:WaitForChild("UIListLayout") :: UIListLayout
+    listLayout.Padding = UDim.new(0, BoardInterfaceConfig.padding)
 
     for y = 1, BoardConfig.rows do
         local rowContainer = createRowContainer(y)
@@ -86,20 +92,16 @@ function Board.newGame(blockerAddresses: { string }): ()
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
 
-    for address, _ in board do
+    for address in board do
         local cell = cells[address]
-        local fill = cell:FindFirstChild("Fill") :: Frame
-        
+
+        if table.find(blockerAddresses, address) then
+            cell.BackgroundColor3 = CellColours.blocked
+
+            continue
+        end
+
         cell.BackgroundColor3 = CellColours.unoccupied
-        fill.BackgroundColor3 = CellColours.unoccupied
-    end
-    
-    for _, address in blockerAddresses do
-        local cell = cells[address]
-        local fill = cell:FindFirstChild("Fill") :: Frame
-        
-        cell.BackgroundColor3 = CellColours.blocked
-        fill.BackgroundColor3 = CellColours.blocked
     end
 end
 

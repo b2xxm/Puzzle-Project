@@ -101,10 +101,8 @@ function BoardService.reset(board: Board): ()
 end
 
 
-function BoardService.placePiece(board: Board, occupyingAddresses: { string }): boolean
-    local pieceType = PieceService.getPieceType(occupyingAddresses)
-
-    if pieceType == "none" then
+function BoardService.placePiece(board: Board, occupyingAddresses: { string }, pieceType: PieceType): boolean
+    if not PieceService.validateShape(pieceType, occupyingAddresses) then
         return false
     end
 

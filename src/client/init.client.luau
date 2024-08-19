@@ -5,11 +5,16 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
 local remotes = ReplicatedStorage.Remotes
-local interface = script.Interface
+local shared = ReplicatedStorage.Shared
+local client = shared.Client
 
 
-local Board = require(interface.Board)
-local PlayerList = require(interface.PlayerList)
+local Board = require(client.Interface.Board)
+local PlayerList = require(client.Interface.PlayerList)
+local Reserve = require(client.Interface.Reserve)
+
+
+Reserve.scatter()
 
 
 remotes.BroadcastNewBoard.OnClientEvent:Connect(Board.newGame)

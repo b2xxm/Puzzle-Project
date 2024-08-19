@@ -23,6 +23,9 @@
         },
         "PlayerList": {
           "$className": "Folder"
+        },
+        "Piece": {
+          "$className": "Folder"
         }
       }
     },
