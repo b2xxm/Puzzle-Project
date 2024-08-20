@@ -29,7 +29,7 @@ local Board = {}
 
 
 local function createRowContainer(y: number): Frame
-    local containerPrefab = prefabs.Board:WaitForChild("RowContainer")
+    local containerPrefab = prefabs.Grid:WaitForChild("RowContainer")
     local container = containerPrefab:Clone()
     container.Name = BoardUtils.getRow(y)
     container.LayoutOrder = y
@@ -48,7 +48,7 @@ local function createCell(x: number, y: number): Frame?
         return
     end
 
-    local cellPrefab = prefabs.Board:WaitForChild("Cell")
+    local cellPrefab = prefabs.Grid:WaitForChild("Cell")
     local cell = cellPrefab:Clone()
     cell.Name = address
     cell.LayoutOrder = x
@@ -80,6 +80,7 @@ local function initialise(): ()
 
             cells[cell.Name] = cell
 
+            cell.BackgroundColor3 = CellColours.unoccupied
             cell.Parent = rowContainer
         end
 
