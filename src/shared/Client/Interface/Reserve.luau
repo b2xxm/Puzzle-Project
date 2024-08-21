@@ -20,14 +20,16 @@ local CellColours = require(client.Interface.Board.CellColours)
 type PieceType = Types.PieceType
 type PieceShape = Types.PieceShape
 type PieceData = Types.PieceData
+type PieceObjectInfo = Types.PieceObjectInfo
 
 
 local player: Player = Players.LocalPlayer
 local camera: Camera = Workspace.CurrentCamera
-local reserved: { [PieceType]: PieceShape } = {}
+local reserved: { PieceObjectInfo } = {}
 
 
 local Reserve = {}
+Reserve.reserved = reserved
 
 
 local function fillPieceCells(container: Frame, pieceData: PieceData, pieceType: PieceType): ()
@@ -89,35 +91,35 @@ local function generatePiece(shape: PieceShape, pieceType: PieceType): Frame
     return piece
 end
 
+function randomPosition()
+    -- fix magic numbers after
 
-function Reserve.scatter(): ()
-    local pieceDatas = PieceService.getPieceDatas()
-
-    for pieceType: PieceType, variations in pieceDatas do
-        local shapeIndex = math.random(#variations)
-        local shape = variations[shapeIndex]
-
-        reserved[pieceType] = shape
-
-        local piece = generatePiece(shape, pieceType)
-
-        -- temporary to view each piece
-        piece.Position = UDim2.fromOffset(
-            math.random(100, 1000),
-            math.random(100, 500)
-        )
+    while true do
+        local x = (math.random() * 0.8) + 0.1
+        
+        if x <= 0.35 or x >= 0.65 then
+            local y = (math.random() * 0.8) + 0.1
+            
+            return x, y
+        end
     end
 end
 
 
+function Reserve.scatter(): ()
+    for pieceType: PieceType, variations in PieceService.pieceVariationsMap do
+        local shapeIndex = math.random(#variations)
+        local shape = variations[shapeIndex]
+
+        local piece = generatePiece(shape, pieceType)
+        piece.Position = UDim2.fromScale(randomPosition())
+        
+        table.insert(reserved, {
+            type = pieceType,
+            shape = shape,
+            object = piece
+        })
+    end
+end
+
 return Reserve
-
---[[    STEPS
-
-> clone new piece ( and set padding )
-> generate piece bound size from cell size of grid ( x, y )
-> set piece size to ( x / viewportSizeX, 0 ) // y size is unnecessary due to aspect ratio
-> set aspect ratio ( x / y )
-> fill in piece rows to make up the piece
-
-]]

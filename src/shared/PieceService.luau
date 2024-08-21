@@ -39,6 +39,7 @@ local pieceVariationsMap: PieceVariations = {
 
 
 local PieceService = {}
+PieceService.pieceVariationsMap = pieceVariationsMap
 
 
 local function getShapeBounds(addresses: { string }): ShapeBounds
@@ -233,11 +234,6 @@ function PieceService.flipVertical(pieceData: PieceData): ()
     end
 
     pieceData.data = newShapeRows
-end
-
-
-function PieceService.getPieceDatas(): PieceVariations
-    return pieceVariationsMap
 end
 
 
