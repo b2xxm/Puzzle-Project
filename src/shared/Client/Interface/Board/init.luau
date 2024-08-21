@@ -97,12 +97,13 @@ function Board.newGame(blockerAddresses: { string }): ()
         local cell = cells[address]
 
         if table.find(blockerAddresses, address) then
-            cell.BackgroundColor3 = CellColours.blocked
+            cell.Transparency = 1
 
             continue
         end
 
         cell.BackgroundColor3 = CellColours.unoccupied
+        cell.Transparency = 0
     end
 end
 

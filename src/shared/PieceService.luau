@@ -79,7 +79,8 @@ end
 
 
 function PieceService.validateShape(pieceType: PieceType, occupyingAddresses: { string }): boolean
-    local pieceShape = PieceService.getPieceDataByAddress(occupyingAddresses).data
+    local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
+    local pieceShape = pieceData.shape
     local variations = pieceVariationsMap[pieceType]
 
     if not variations then
@@ -108,10 +109,10 @@ function PieceService.validateShape(pieceType: PieceType, occupyingAddresses: { 
 end
 
 
-function PieceService.getPieceDataByAddress(addresses: { string }): PieceData
+function PieceService.getPieceDataByAddress(addresses: { string }, pieceType: PieceType): PieceData
     local shapeBounds = getShapeBounds(addresses)
 
-    local shapeRows = {}
+    local shape = {}
     local metadata = {
         height = (shapeBounds.bottom - shapeBounds.top) + 1,
         width = (shapeBounds.right - shapeBounds.left) + 1
@@ -134,14 +135,14 @@ function PieceService.getPieceDataByAddress(addresses: { string }): PieceData
             end
         end
 
-        table.insert(shapeRows, rowBinary)
+        table.insert(shape, rowBinary)
     end
-   
-    return { data = shapeRows, metadata = metadata }
+
+    return { shape = shape, metadata = metadata, type = pieceType }
 end
 
 
-function PieceService.getPieceDataByShape(shape: PieceShape): PieceData
+function PieceService.getPieceDataByShape(shape: PieceShape, pieceType: PieceType): PieceData
     local height = #shape
     local width = 0
 
@@ -157,12 +158,14 @@ function PieceService.getPieceDataByShape(shape: PieceShape): PieceData
         width += 1
     end
    
-    return { data = shape, metadata = { height = height, width = width } }
+    local metadata = { height = height, width = width }
+
+    return { shape = shape, metadata = metadata, type = pieceType }
 end
 
 
 function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
-    local oldShapeRows = pieceData.data
+    local oldShapeRows = pieceData.shape
     local oldMetadata = pieceData.metadata
 
     local newShapeRows = {}
@@ -175,11 +178,11 @@ function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
 
     if clockwise then
         positionStart, positionEnd = oldMetadata.width - 1, 0
-        indexStart, indexEnd = oldMetadata.height - 1, 0
+        indexStart, indexEnd = oldMetadata.height, 1
         step = -1
     else
         positionStart, positionEnd = 0, oldMetadata.width - 1
-        indexStart, indexEnd = 0, oldMetadata.height - 1
+        indexStart, indexEnd = 1, oldMetadata.height
         step = 1
     end
 
@@ -198,13 +201,13 @@ function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
         table.insert(newShapeRows, newRowBinary)
     end
 
-    pieceData.data = newShapeRows
+    pieceData.shape = newShapeRows
     pieceData.metadata = newMetadata
 end
 
 
 function PieceService.flipHorizontal(pieceData: PieceData): ()
-    local oldShapeRows = pieceData.data
+    local oldShapeRows = pieceData.shape
     local newShapeRows = {}
 
     for _, row in oldShapeRows do
@@ -221,19 +224,19 @@ function PieceService.flipHorizontal(pieceData: PieceData): ()
         table.insert(newShapeRows, flippedRow)
     end
 
-    pieceData.data = newShapeRows
+    pieceData.shape = newShapeRows
 end
 
 
 function PieceService.flipVertical(pieceData: PieceData): ()
-    local oldShapeRows = pieceData.data
+    local oldShapeRows = pieceData.shape
     local newShapeRows = {}
 
     for index = #oldShapeRows, 1, -1 do
         table.insert(newShapeRows, oldShapeRows[index])
     end
 
-    pieceData.data = newShapeRows
+    pieceData.shape = newShapeRows
 end
 
 

@@ -1,7 +1,5 @@
 return {
     unoccupied = Color3.fromRGB(20, 20, 20),
-    blocked = Color3.fromRGB(25, 25, 25),
-
     occupied = {
         red = Color3.fromRGB(255, 55, 55),
         orange = Color3.fromRGB(255, 155, 55),

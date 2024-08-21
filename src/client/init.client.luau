@@ -24,4 +24,4 @@ remotes.BroadcastNewBoard.OnClientEvent:Connect(Board.newGame)
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 
-ContextActionService:BindAction(Selector.actionName, Selector.actionCallback, false, table.unpack(Selector.inputs))
+ContextActionService:BindAction(Selector.actionName, Selector.action, false, table.unpack(Selector.inputs))

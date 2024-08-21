@@ -31,9 +31,23 @@ local reserved: { PieceObjectInfo } = {}
 local Reserve = {}
 Reserve.reserved = reserved
 
+function randomPosition()
+    -- fix magic numbers after
+
+    while true do
+        local x = (math.random() * 0.8) + 0.1
+        
+        if x <= 0.35 or x >= 0.65 then
+            local y = (math.random() * 0.8) + 0.1
+            
+            return x, y
+        end
+    end
+end
+
 
 local function fillPieceCells(container: Frame, pieceData: PieceData, pieceType: PieceType): ()
-    for rowIndex, shapeRow in pieceData.data do
+    for rowIndex, shapeRow in pieceData.shape do
         local rowContainerPrefab = prefabs.Grid:WaitForChild("RowContainer") :: Frame
         local rowContainer = rowContainerPrefab:Clone()
         rowContainer.LayoutOrder = rowIndex
@@ -57,8 +71,8 @@ local function fillPieceCells(container: Frame, pieceData: PieceData, pieceType:
 end
 
 
-local function generatePiece(shape: PieceShape, pieceType: PieceType): Frame
-    local pieceData = PieceService.getPieceDataByShape(shape)
+function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): Frame
+    local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
 
     local playerGui = player.PlayerGui
     
@@ -91,32 +105,19 @@ local function generatePiece(shape: PieceShape, pieceType: PieceType): Frame
     return piece
 end
 
-function randomPosition()
-    -- fix magic numbers after
-
-    while true do
-        local x = (math.random() * 0.8) + 0.1
-        
-        if x <= 0.35 or x >= 0.65 then
-            local y = (math.random() * 0.8) + 0.1
-            
-            return x, y
-        end
-    end
-end
-
 
 function Reserve.scatter(): ()
     for pieceType: PieceType, variations in PieceService.pieceVariationsMap do
         local shapeIndex = math.random(#variations)
         local shape = variations[shapeIndex]
 
-        local piece = generatePiece(shape, pieceType)
+        local piece = Reserve.generatePiece(shape, pieceType)
         piece.Position = UDim2.fromScale(randomPosition())
+
+        local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
         
         table.insert(reserved, {
-            type = pieceType,
-            shape = shape,
+            pieceData = pieceData,
             object = piece
         })
     end
