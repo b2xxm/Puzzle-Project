@@ -72,6 +72,7 @@ end
 
 
 function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): Frame
+    -- fix more scaling issues....
     local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
 
     local playerGui = player.PlayerGui
