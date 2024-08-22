@@ -13,7 +13,11 @@ local client = shared.Client
 
 local Types = require(shared.Types)
 local PieceService = require(shared.PieceService)
+local BoardUtils = require(shared.BoardService.Utils)
+local BoardConfig = require(shared.BoardService.Config)
 local Reserve = require(client.Interface.Reserve)
+local BoardInterface = require(client.Interface.Board)
+local BoardInterfaceConfig = require(client.Interface.Board.Config)
 
 
 type PieceObjectInfo = Types.PieceObjectInfo
@@ -86,6 +90,53 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
 end
 
 
+function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { string }?
+	local closestCells = {}
+    local closestAddress = nil
+    local closestDistance = math.huge
+
+    local shapeHeight = objectInfo.pieceData.metadata.height
+    local shapeWidth = objectInfo.pieceData.metadata.width
+
+    for y = 1, BoardConfig.rows - shapeHeight + 1 do
+        for x = 1, BoardConfig.columns - shapeWidth + 1 do
+			local address = BoardUtils.toAddress(x, y) :: string
+            local cellObject = BoardInterface.cells[address]
+
+            local padding = BoardInterfaceConfig.padding
+
+            local shapeSizeX = ((shapeWidth + padding) * cellObject.AbsoluteSize.X) - padding
+            local shapeSizeY = ((shapeHeight + padding) * cellObject.AbsoluteSize.Y) - padding
+
+            local shapeCentreX = cellObject.AbsolutePosition.X + (shapeSizeX / 2)
+            local shapeCentreY = cellObject.AbsolutePosition.Y + (shapeSizeY / 2)
+
+            local distance = math.sqrt((shapeCentreX - mousePos.X) ^ 2 + (shapeCentreY - mousePos.Y) ^ 2)
+
+            if distance < closestDistance then
+                closestDistance = distance
+                closestAddress = address
+            end
+        end
+    end
+
+	local y, x = BoardUtils.toCoordinates(closestAddress)
+    
+    if not y or not x then
+        return
+    end
+	
+	for yOffset = 0, shapeHeight - 1 do
+    	for xOffset = 0, shapeWidth - 1 do
+			local address = BoardUtils.toAddress(x + xOffset, y + yOffset) :: string
+        	table.insert(closestCells, address)
+        end
+    end
+
+    return closestCells
+end
+
+
 function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): ()
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         if state == Enum.UserInputState.Begin then
@@ -132,6 +183,8 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
         end
 
         selected.object.Position = getPosition(input)
+
+        -- highlight piece placement
     end
 end
 
