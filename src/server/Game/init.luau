@@ -1,5 +1,3 @@
---!strict
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
@@ -16,7 +14,6 @@ type Board = Types.Board
 
 
 local submissions: { { player: Player, solution: Board } } = {}
-
 local cache: { board: Board, blocked: { string } } = {
     board = BoardService.new(),
     blocked = {}

@@ -16,6 +16,7 @@ local Reserve = require(client.Interface.Reserve)
 local Selector = require(client.Input.Selector)
 
 
+-- temporary
 Reserve.scatter()
 
 

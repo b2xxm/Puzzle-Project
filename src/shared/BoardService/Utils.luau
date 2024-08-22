@@ -1,5 +1,3 @@
---!strict
-
 local BoardConfig = require(script.Parent.Config)
 
 

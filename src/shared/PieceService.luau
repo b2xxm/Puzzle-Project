@@ -1,5 +1,3 @@
---!strict
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
@@ -20,9 +18,9 @@ type PieceVariations = { [PieceType]: { PieceShape } }
 type ShapeBounds = { top: number, bottom: number, left: number, right: number }
 
 
-local pieceTypes: { PieceType } = { "red", "orange", "yellow", "green", "lblue", "dblue", "purple", "brown", "grey", "blocker", "none" }
+local PIECE_TYPES: { PieceType } = { "red", "orange", "yellow", "green", "lblue", "dblue", "purple", "brown", "grey", "blocker", "none" }
 
-local pieceVariationsMap: PieceVariations = {
+local PIECE_VARIATIONS_MAP: PieceVariations = {
     red = { { 0b110, 0b011 }, { 0b01, 0b11, 0b10 }, { 0b011, 0b110 }, { 0b10, 0b11, 0b01 } },
     orange = { { 0b111 }, { 0b1, 0b1, 0b1 } },
     yellow = { { 0b010, 0b111 }, { 0b10, 0b11, 0b10 }, { 0b111, 0b010 }, { 0b01, 0b11, 0b01 } },
@@ -39,7 +37,7 @@ local pieceVariationsMap: PieceVariations = {
 
 
 local PieceService = {}
-PieceService.pieceVariationsMap = pieceVariationsMap
+PieceService.pieceVariationsMap = PIECE_VARIATIONS_MAP
 
 
 local function getShapeBounds(addresses: { string }): ShapeBounds
@@ -68,7 +66,7 @@ end
 
 
 function PieceService.isAType(toCheck: string): boolean
-    for _, pieceType: PieceType in pieceTypes do
+    for _, pieceType: PieceType in PIECE_TYPES do
         if toCheck == pieceType then
             return true
         end
@@ -81,7 +79,7 @@ end
 function PieceService.validateShape(pieceType: PieceType, occupyingAddresses: { string }): boolean
     local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
     local pieceShape = pieceData.shape
-    local variations = pieceVariationsMap[pieceType]
+    local variations = PIECE_VARIATIONS_MAP[pieceType]
 
     if not variations then
         return false

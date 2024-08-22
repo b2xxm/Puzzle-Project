@@ -1,5 +1,3 @@
---!strict
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
@@ -29,13 +27,6 @@ type PieceActionInputs = {
 }
 
 
-local player: Player = Players.LocalPlayer
-local camera: Camera = Workspace.CurrentCamera
-local selected: PieceObjectInfo? = nil
-local currentHoveringAddress: string? = nil
-local currentHoveringAddresses: { string } = {}
-
-
 local PIECE_ACTION_NAME: string = "PieceAction"
 local PIECE_ACTION_INPUTS: PieceActionInputs = {
     flip = {
@@ -47,6 +38,13 @@ local PIECE_ACTION_INPUTS: PieceActionInputs = {
         counterclockwise = Enum.KeyCode.Q
     }
 }
+
+
+local player: Player = Players.LocalPlayer
+local camera: Camera = Workspace.CurrentCamera
+local selected: PieceObjectInfo? = nil
+local currentHoveringAddress: string? = nil
+local currentHoveringAddresses: { string } = {}
 
 
 local Selector = {}
