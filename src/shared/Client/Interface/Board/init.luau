@@ -27,6 +27,7 @@ local cells: { [string]: Frame } = {}
 
 local Board = {}
 Board.cells = cells
+Board.board = board
 
 
 local function createRowContainer(y: number): Frame

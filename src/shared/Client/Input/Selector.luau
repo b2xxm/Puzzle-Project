@@ -18,8 +18,10 @@ local BoardConfig = require(shared.BoardService.Config)
 local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
+local CellColours = require(client.Interface.Board.CellColours)
 
 
+type PieceType = Types.PieceType
 type PieceObjectInfo = Types.PieceObjectInfo
 type PieceActionInputs = {
     flip: { horizontal: Enum.KeyCode, vertical: Enum.KeyCode },
@@ -30,6 +32,8 @@ type PieceActionInputs = {
 local player: Player = Players.LocalPlayer
 local camera: Camera = Workspace.CurrentCamera
 local selected: PieceObjectInfo? = nil
+local currentHoveringAddress: string? = nil
+local currentHoveringAddresses: { string } = {}
 
 
 local PIECE_ACTION_NAME: string = "PieceAction"
@@ -86,13 +90,16 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     end
 
     selected.object = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
+
+    Selector.update(selected, input)
+
     selected.object.Position = position
 end
 
 
-local function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { string }?
-	local closestCells = {}
-    local closestAddress = nil
+local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectInfo): { string }?
+	local hoveringAddresses = {}
+    local hoveringAddress = nil
     local closestDistance = math.huge
 
     local shapeHeight = objectInfo.pieceData.metadata.height
@@ -115,25 +122,100 @@ local function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo):
 
             if distance < closestDistance then
                 closestDistance = distance
-                closestAddress = address
+                hoveringAddress = address
             end
         end
     end
 
-	local x, y = BoardUtils.toCoordinates(closestAddress)
+    if currentHoveringAddress == hoveringAddress then
+        return
+    end
+
+    currentHoveringAddress = hoveringAddress
+
+	local x, y = BoardUtils.toCoordinates(hoveringAddress)
     
     if not x or not y then
         return
     end
 	
-	for yOffset = 0, shapeHeight - 1 do
-    	for xOffset = 0, shapeWidth - 1 do
-			local address = BoardUtils.toAddress(x + xOffset, y + yOffset) :: string
-        	table.insert(closestCells, address)
+	for rowIndex, shapeRow in objectInfo.pieceData.shape do
+    	for bitPosition = 0, shapeWidth - 1 do
+            local bit = bit32.extract(shapeRow, bitPosition, 1)
+
+            if bit == 0 then
+                continue
+            end
+
+			local address = BoardUtils.toAddress(
+                x + (shapeWidth - bitPosition) - 1,
+                y + rowIndex - 1
+            ) :: string
+
+        	table.insert(hoveringAddresses, address)
         end
     end
 
-    return closestCells
+    return hoveringAddresses
+end
+
+
+function highlightColour(colour: Color3): Color3
+    local r, g, b = colour.R, colour.G, colour.B
+    
+    local white = 1
+    local alpha = 0.2
+    
+    local newR = r + (white - r) * alpha
+    local newG = g + (white - g) * alpha
+    local newB = b + (white - b) * alpha
+    
+    return Color3.new(newR, newG, newB)
+end
+
+
+function clearHighlights(): ()
+    for _, address in currentHoveringAddresses do
+        local pieceType: PieceType = BoardInterface.board[address]
+        local cellObject = BoardInterface.cells[address]
+
+        if pieceType == "blocker" then
+            cellObject.Transparency = 1
+
+        elseif pieceType == "none" then
+            cellObject.BackgroundColor3 = CellColours.unoccupied
+
+        else
+            cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
+        end
+    end
+end
+
+
+function Selector.update(objectInfo: PieceObjectInfo, input: InputObject): ()
+    objectInfo.object.Position = getPosition(input)
+    
+    local hoveringAddresses = getHoveringAddresses(input.Position, objectInfo)
+
+    if hoveringAddresses then
+        clearHighlights()
+
+        for _, address in hoveringAddresses do
+            local pieceType: PieceType = BoardInterface.board[address]
+            local cellObject = BoardInterface.cells[address]
+
+            local colour = highlightColour(cellObject.BackgroundColor3)
+
+            cellObject.BackgroundColor3 = colour
+
+            if pieceType == "blocker" then
+                cellObject.Transparency = 0.9
+                cellObject.BackgroundColor3 = Color3.new(1, 0.2, 0.2)
+            end
+        end
+
+        currentHoveringAddresses = hoveringAddresses
+    end
 end
 
 
@@ -157,11 +239,15 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
                 end
 
                 if selected then
-                    selected.object.Position = getPosition(input)
-
                     break
                 end
             end
+
+            if not selected then
+                return
+            end
+
+            Selector.update(selected, input)
 
             ContextActionService:BindAction(
                 PIECE_ACTION_NAME,
@@ -173,7 +259,14 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
                 PIECE_ACTION_INPUTS.rotate.counterclockwise
             )
         else
+            if not selected then
+                return
+            end
+            
             selected = nil
+            currentHoveringAddress = nil
+
+            clearHighlights()
             
             ContextActionService:UnbindAction(PIECE_ACTION_NAME)
         end
@@ -182,12 +275,7 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
             return
         end
 
-        selected.object.Position = getPosition(input)
-        
-        local hoveringCells = getHoveringCells(input.Position, selected)
-        print(hoveringCells)
-
-        -- highlight piece placement
+        Selector.update(selected, input)
     end
 end
 
