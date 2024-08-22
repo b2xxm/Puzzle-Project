@@ -90,7 +90,7 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
 end
 
 
-function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { string }?
+local function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { string }?
 	local closestCells = {}
     local closestAddress = nil
     local closestDistance = math.huge
@@ -105,8 +105,8 @@ function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { str
 
             local padding = BoardInterfaceConfig.padding
 
-            local shapeSizeX = ((shapeWidth + padding) * cellObject.AbsoluteSize.X) - padding
-            local shapeSizeY = ((shapeHeight + padding) * cellObject.AbsoluteSize.Y) - padding
+            local shapeSizeX = ((cellObject.AbsoluteSize.X + padding) * shapeWidth) - padding
+            local shapeSizeY = ((cellObject.AbsoluteSize.Y + padding) * shapeHeight) - padding
 
             local shapeCentreX = cellObject.AbsolutePosition.X + (shapeSizeX / 2)
             local shapeCentreY = cellObject.AbsolutePosition.Y + (shapeSizeY / 2)
@@ -120,9 +120,9 @@ function getHoveringCells(mousePos: Vector3, objectInfo: PieceObjectInfo): { str
         end
     end
 
-	local y, x = BoardUtils.toCoordinates(closestAddress)
+	local x, y = BoardUtils.toCoordinates(closestAddress)
     
-    if not y or not x then
+    if not x or not y then
         return
     end
 	
@@ -183,6 +183,9 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
         end
 
         selected.object.Position = getPosition(input)
+        
+        local hoveringCells = getHoveringCells(input.Position, selected)
+        print(hoveringCells)
 
         -- highlight piece placement
     end
