@@ -168,9 +168,9 @@ function PieceService.rotate(pieceData: PieceData, clockwise: boolean): ()
 
     local newShapeRows = {}
     local newMetadata = {
-		height = oldMetadata.width,
-		width = oldMetadata.height
-	}
+        height = oldMetadata.width,
+        width = oldMetadata.height
+    }
 
     local positionStart, positionEnd, indexStart, indexEnd, step
 

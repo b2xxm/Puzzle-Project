@@ -137,20 +137,20 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
         return
     end
     
-	for rowIndex, shapeRow in objectInfo.pieceData.shape do
-    	for bitPosition = 0, shapeWidth - 1 do
+    for rowIndex, shapeRow in objectInfo.pieceData.shape do
+        for bitPosition = 0, shapeWidth - 1 do
             local bit = bit32.extract(shapeRow, bitPosition, 1)
 
             if bit == 0 then
                 continue
             end
 
-			local address = BoardUtils.toAddress(
+            local address = BoardUtils.toAddress(
                 x + (shapeWidth - bitPosition) - 1,
                 y + rowIndex - 1
             ) :: string
 
-        	table.insert(hoveringAddresses, address)
+            table.insert(hoveringAddresses, address)
         end
     end
 
