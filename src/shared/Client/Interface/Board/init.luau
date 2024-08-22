@@ -26,7 +26,6 @@ local cells: { [string]: Frame } = {}
 
 
 local Board = {}
-Board.cells = cells
 
 
 local function createRowContainer(y: number): Frame
@@ -43,7 +42,11 @@ end
 
 
 local function createCell(x: number, y: number): Frame?
-    local address = BoardUtils.toAddress(x, y) :: string
+    local address = BoardUtils.toAddress(x, y)
+
+    if not address then
+        return
+    end
 
     local cellPrefab = prefabs.Grid:WaitForChild("Cell")
     local cell = cellPrefab:Clone()

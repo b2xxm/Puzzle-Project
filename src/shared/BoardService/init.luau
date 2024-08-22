@@ -24,7 +24,12 @@ function BoardService.new(): Board
 
     for y = 1, BoardConfig.rows do
         for x = 1, BoardConfig.columns do
-            local address = BoardUtils.toAddress(x, y) :: string
+            local address = BoardUtils.toAddress(x, y)
+
+            if not address then
+                continue
+            end
+
             board[address] = "none"
         end
     end
