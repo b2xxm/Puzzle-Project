@@ -15,7 +15,7 @@ local CellColours = require(script.CellColours)
 
 
 type Board = Types.Board
-type PieceType = Types.Board
+type PieceType = Types.PieceType
 
 
 local player: Player = Players.LocalPlayer
