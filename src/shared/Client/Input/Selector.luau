@@ -55,12 +55,12 @@ Selector.inputs = {
 }
 
 
-local function getPosition(input: InputObject): UDim2
+local function toScalePosition(position: Vector3): UDim2
     local inset = (GuiService:GetGuiInset()).Y
 
     return UDim2.fromScale(
-        input.Position.X / camera.ViewportSize.X,
-        (input.Position.Y + inset) / camera.ViewportSize.Y
+        position.X / camera.ViewportSize.X,
+        (position.Y + inset) / camera.ViewportSize.Y
     )
 end
 
@@ -69,10 +69,6 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     if state ~= Enum.UserInputState.Begin or not selected then
         return
     end
-
-    local position = selected.object.Position
-
-    selected.object:Destroy()
 
     if input.KeyCode == PIECE_ACTION_INPUTS.flip.horizontal then
         PieceService.flipHorizontal(selected.pieceData)
@@ -87,11 +83,18 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
         PieceService.rotate(selected.pieceData, false)
     end
 
-    selected.object = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
+    currentHoveringAddress = nil
 
-    Selector.update(selected, input)
+    local newObject = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
+    newObject.Position = selected.object.Position
 
-    selected.object.Position = position
+    selected.object:Destroy()
+    selected.object = newObject
+
+    local x = newObject.AbsolutePosition.X + newObject.AbsoluteSize.X / 2
+    local y = newObject.AbsolutePosition.Y + newObject.AbsoluteSize.Y / 2
+
+    Selector.update(selected, Vector3.new(x, y, 0))
 end
 
 
@@ -110,11 +113,11 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
 
             local padding = BoardInterfaceConfig.padding
 
-            local shapeSizeX = ((cellObject.AbsoluteSize.X + padding) * shapeWidth) - padding
-            local shapeSizeY = ((cellObject.AbsoluteSize.Y + padding) * shapeHeight) - padding
+            local shapeSizeX = (cellObject.AbsoluteSize.X + padding) * shapeWidth - padding
+            local shapeSizeY = (cellObject.AbsoluteSize.Y + padding) * shapeHeight - padding
 
-            local shapeCentreX = cellObject.AbsolutePosition.X + (shapeSizeX / 2)
-            local shapeCentreY = cellObject.AbsolutePosition.Y + (shapeSizeY / 2)
+            local shapeCentreX = cellObject.AbsolutePosition.X + shapeSizeX / 2
+            local shapeCentreY = cellObject.AbsolutePosition.Y + shapeSizeY / 2
 
             local distance = math.sqrt((shapeCentreX - mousePos.X) ^ 2 + (shapeCentreY - mousePos.Y) ^ 2)
 
@@ -182,18 +185,32 @@ function clearHighlights(): ()
 
         elseif pieceType == "none" then
             cellObject.BackgroundColor3 = CellColours.unoccupied
-
         else
             cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
         end
     end
+
+    currentHoveringAddress = nil
+    table.clear(currentHoveringAddresses)
 end
 
 
-function Selector.update(objectInfo: PieceObjectInfo, input: InputObject): ()
-    objectInfo.object.Position = getPosition(input)
+function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
+    objectInfo.object.Position = toScalePosition(position)
+
+    local playerGui = player.PlayerGui
+    local gameUi = playerGui:WaitForChild("GameUi")
+    local boardFrame = gameUi:WaitForChild("Board") :: Frame
+        
+    local guiObjects = playerGui:GetGuiObjectsAtPosition(position.X, position.Y)
+
+    if not table.find(guiObjects, boardFrame) then
+        clearHighlights()
+
+        return
+    end
     
-    local hoveringAddresses = getHoveringAddresses(input.Position, objectInfo)
+    local hoveringAddresses = getHoveringAddresses(position, objectInfo)
 
     if hoveringAddresses then
         clearHighlights()
@@ -245,7 +262,7 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
                 return
             end
 
-            Selector.update(selected, input)
+            Selector.update(selected, input.Position)
 
             ContextActionService:BindAction(
                 PIECE_ACTION_NAME,
@@ -272,8 +289,8 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
         if state ~= Enum.UserInputState.Change or not selected then
             return
         end
-
-        Selector.update(selected, input)
+        
+        Selector.update(selected, input.Position)
     end
 end
 
