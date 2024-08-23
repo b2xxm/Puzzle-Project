@@ -104,6 +104,32 @@ function Board.newGame(blockerAddresses: { string }): ()
 end
 
 
+function Board.placePiece(occupyingAddresses: { string }, pieceType: PieceType): boolean
+    local success = BoardService.placePiece(board, occupyingAddresses, pieceType)
+
+    if not success then
+        return false
+    end
+
+    local colour = CellColours.occupied[pieceType]
+
+    for _, address in occupyingAddresses do
+        local cell = cells[address]
+        cell.BackgroundColor3 = colour
+    end
+
+    return success
+end
+
+
+function Board.removePiece(occupyingAddresses: { string }): ()
+    for _, address in occupyingAddresses do
+        Board.board[address] = "none"
+        Board.cells[address].BackgroundColor3 = CellColours.unoccupied
+    end
+end
+
+
 initialise()
 
 

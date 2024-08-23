@@ -99,18 +99,18 @@ function BoardService.placePiece(board: Board, occupyingAddresses: { string }, p
         return false
     end
 
-    local changedCell = {} :: { string }
+    local changedCell = {}
 
     for _, address in occupyingAddresses do
         if board[address] ~= "none" then
             for _, changedAddress in changedCell do
-                board[changedAddress] = "none"
+                board[changedAddress :: string] = "none"
             end
 
             return false
         end
 
-        board[address] = pieceType :: PieceType
+        board[address] = pieceType
 
         table.insert(changedCell, address)
     end

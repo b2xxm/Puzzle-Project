@@ -84,15 +84,14 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     end
 
     currentHoveringAddress = nil
+    
+    local objectInfo = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
 
-    local newObject = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
-    newObject.Position = selected.object.Position
+    local x = selected.object.AbsolutePosition.X + selected.object.AbsoluteSize.X / 2
+    local y = selected.object.AbsolutePosition.Y + selected.object.AbsoluteSize.Y / 2
 
     selected.object:Destroy()
-    selected.object = newObject
-
-    local x = newObject.AbsolutePosition.X + newObject.AbsoluteSize.X / 2
-    local y = newObject.AbsolutePosition.Y + newObject.AbsoluteSize.Y / 2
+    selected = objectInfo
 
     Selector.update(selected, Vector3.new(x, y, 0))
 end
@@ -164,7 +163,7 @@ end
 function highlightColour(colour: Color3): Color3
     local r, g, b = colour.R, colour.G, colour.B
     
-    local white = 1
+    local white = 1 -- add to config
     local alpha = 0.2
     
     local newR = r + (white - r) * alpha
@@ -189,9 +188,6 @@ function clearHighlights(): ()
             cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
         end
     end
-
-    currentHoveringAddress = nil
-    table.clear(currentHoveringAddresses)
 end
 
 
@@ -206,6 +202,8 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
 
     if not table.find(guiObjects, boardFrame) then
         clearHighlights()
+
+        currentHoveringAddress = nil
 
         return
     end
@@ -224,6 +222,7 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
             cellObject.BackgroundColor3 = colour
 
             if pieceType == "blocker" then
+                -- add to config
                 cellObject.Transparency = 0.9
                 cellObject.BackgroundColor3 = Color3.new(1, 0.2, 0.2)
             end
@@ -242,27 +241,54 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
             local x, y = input.Position.X, input.Position.Y
             local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
 
+            local clickedAddress = nil
+
             for _, object in guiObjects do
                 for _, reserveInfo in Reserve.reserved do
-                    if object ~= reserveInfo.object then
-                        continue
+                    if object == reserveInfo.object then
+                        selected = reserveInfo
+                        
+                        break
                     end
-
-                    selected = reserveInfo
-
-                    break
                 end
 
                 if selected then
                     break
                 end
+                
+                if not clickedAddress and BoardInterface.cells[object.Name] then
+                    clickedAddress = object.Name
+                end
             end
 
             if not selected then
-                return
+                if not clickedAddress then
+                    return
+                end
+
+                local pieceType: PieceType = BoardInterface.board[clickedAddress]
+
+                if pieceType == "blocker" or pieceType == "none" then
+                    return
+                end
+
+                local occupyingAddresses = {}
+
+                for address, otherPieceType in BoardInterface.board do
+                    if otherPieceType ~= pieceType then
+                        continue
+                    end
+
+                    table.insert(occupyingAddresses, address)
+                end
+                
+                local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
+                selected = Reserve.generatePiece(pieceData.shape, pieceType)
+
+                BoardInterface.removePiece(occupyingAddresses)
             end
 
-            Selector.update(selected, input.Position)
+            Selector.update(selected :: PieceObjectInfo, input.Position)
 
             ContextActionService:BindAction(
                 PIECE_ACTION_NAME,
@@ -273,13 +299,23 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
                 PIECE_ACTION_INPUTS.rotate.clockwise,
                 PIECE_ACTION_INPUTS.rotate.counterclockwise
             )
-        else
+
+        elseif state == Enum.UserInputState.End then
             if not selected then
                 return
             end
+
+            if currentHoveringAddress then
+                local success = BoardInterface.placePiece(currentHoveringAddresses, selected.pieceData.type)
+
+                if success then
+                    Reserve.removePieceObject(selected)
+                end
+
+                currentHoveringAddress = nil
+            end
             
             selected = nil
-            currentHoveringAddress = nil
 
             clearHighlights()
             

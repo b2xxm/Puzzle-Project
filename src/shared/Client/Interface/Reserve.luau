@@ -69,7 +69,7 @@ local function fillPieceCells(container: Frame, pieceData: PieceData, pieceType:
 end
 
 
-function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): Frame
+function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceObjectInfo
     -- fix more scaling issues....
     local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
 
@@ -101,7 +101,10 @@ function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): Frame
 
     piece.Parent = gameUi:WaitForChild("Reserve")
 
-    return piece
+    local objectInfo = { pieceData = pieceData, object = piece }
+    table.insert(reserved, objectInfo)
+
+    return objectInfo
 end
 
 
@@ -110,16 +113,21 @@ function Reserve.scatter(): ()
         local shapeIndex = math.random(#variations)
         local shape = variations[shapeIndex]
 
-        local piece = Reserve.generatePiece(shape, pieceType)
-        piece.Position = UDim2.fromScale(randomPosition())
-
-        local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
-        
-        table.insert(reserved, {
-            pieceData = pieceData,
-            object = piece
-        })
+        local objectInfo = Reserve.generatePiece(shape, pieceType)
+        objectInfo.object.Position = UDim2.fromScale(randomPosition())
     end
 end
+
+
+function Reserve.removePieceObject(objectInfo: PieceObjectInfo): ()
+    for _, otherObjectInfo in reserved do
+        if objectInfo == otherObjectInfo then
+            objectInfo.object:Destroy()
+
+            break
+        end
+    end
+end
+
 
 return Reserve
