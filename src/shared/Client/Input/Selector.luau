@@ -317,10 +317,10 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
 
                 if success then
                     Reserve.removePieceObject(selected)
-                end
 
-                if #Reserve.reserved == 0 then
-                    remotes.SubmitSolution:FireServer(BoardInterface.board)
+                    if #Reserve.reserved == 0 then
+                        remotes.SubmitSolution:FireServer(BoardInterface.board)
+                    end
                 end
 
                 currentHoveringAddress = nil
