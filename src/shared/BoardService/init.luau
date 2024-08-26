@@ -94,14 +94,14 @@ function BoardService.reset(board: Board): ()
 end
 
 
-function BoardService.placePiece(board: Board, occupyingAddresses: { string }, pieceType: PieceType): boolean
-    if not PieceService.validateShape(pieceType, occupyingAddresses) then
+function BoardService.placePiece(board: Board, addresses: { string }, pieceType: PieceType): boolean
+    if not PieceService.validateShape(pieceType, addresses) then
         return false
     end
 
     local changedCell = {}
 
-    for _, address in occupyingAddresses do
+    for _, address in addresses do
         if board[address] ~= "none" then
             for _, changedAddress in changedCell do
                 board[changedAddress :: string] = "none"

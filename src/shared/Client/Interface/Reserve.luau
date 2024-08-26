@@ -29,6 +29,7 @@ local reserved: { PieceObjectInfo } = {}
 local Reserve = {}
 Reserve.reserved = reserved
 
+
 function randomPosition()
     -- fix magic numbers after
 
@@ -44,7 +45,7 @@ function randomPosition()
 end
 
 
-local function fillPieceCells(container: Frame, pieceData: PieceData, pieceType: PieceType): ()
+local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceType: PieceType): ()
     for rowIndex, shapeRow in pieceData.shape do
         local rowContainerPrefab = prefabs.Grid:WaitForChild("RowContainer") :: Frame
         local rowContainer = rowContainerPrefab:Clone()
@@ -87,7 +88,7 @@ function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceOb
     local boundSizeX = ((cellSizeX + padding) * pieceData.metadata.width) - padding
     local boundSizeY = ((cellSizeY + padding) * pieceData.metadata.height) - padding
     
-    local piecePrefab = prefabs.Piece:WaitForChild("Bounds") :: Frame
+    local piecePrefab = prefabs.Piece:WaitForChild("Bounds") :: GuiObject
     local piece = piecePrefab:Clone()
     piece.Size = UDim2.fromScale(boundSizeX / camera.ViewportSize.X, 0)
 

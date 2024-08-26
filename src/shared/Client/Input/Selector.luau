@@ -118,7 +118,8 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
             local shapeCentreX = cellObject.AbsolutePosition.X + shapeSizeX / 2
             local shapeCentreY = cellObject.AbsolutePosition.Y + shapeSizeY / 2
 
-            local distance = math.sqrt((shapeCentreX - mousePos.X) ^ 2 + (shapeCentreY - mousePos.Y) ^ 2)
+            local deltaX, deltaY = shapeCentreX - mousePos.X, shapeCentreY - mousePos.Y
+            local distance = math.sqrt(deltaX ^ 2 + deltaY ^ 2)
 
             if distance < closestDistance then
                 closestDistance = distance
@@ -163,7 +164,8 @@ end
 function highlightColour(colour: Color3): Color3
     local r, g, b = colour.R, colour.G, colour.B
     
-    local white = 1 -- add to config
+    -- add to config
+    local white = 1
     local alpha = 0.2
     
     local newR = r + (white - r) * alpha
@@ -181,11 +183,31 @@ function clearHighlights(): ()
 
         if pieceType == "blocker" then
             cellObject.Transparency = 1
-
-        elseif pieceType == "none" then
-            cellObject.BackgroundColor3 = CellColours.unoccupied
         else
-            cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
+            if pieceType == "none" then
+                cellObject.BackgroundColor3 = CellColours.unoccupied
+            else
+                cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
+            end
+
+            cellObject.Transparency = 0
+        end
+    end
+end
+
+
+function setPieceVisibility(pieceObject: GuiObject, translucent: boolean): ()
+    for _, rowContainer in pieceObject:GetChildren() do
+        if not rowContainer:IsA("Frame") then
+            continue
+        end
+
+        for _, cell in rowContainer:GetChildren() do
+            if not cell:IsA("Frame") or cell.Transparency == 1 then
+                continue
+            end
+
+            cell.Transparency = if translucent then 0.8 else 0
         end
     end
 end
@@ -202,6 +224,7 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
 
     if not table.find(guiObjects, boardFrame) then
         clearHighlights()
+        setPieceVisibility(objectInfo.object, false)
 
         currentHoveringAddress = nil
 
@@ -210,26 +233,34 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
     
     local hoveringAddresses = getHoveringAddresses(position, objectInfo)
 
-    if hoveringAddresses then
-        clearHighlights()
-
-        for _, address in hoveringAddresses do
-            local pieceType: PieceType = BoardInterface.board[address]
-            local cellObject = BoardInterface.cells[address]
-
-            local colour = highlightColour(cellObject.BackgroundColor3)
-
-            cellObject.BackgroundColor3 = colour
-
-            if pieceType == "blocker" then
-                -- add to config
-                cellObject.Transparency = 0.9
-                cellObject.BackgroundColor3 = Color3.new(1, 0.2, 0.2)
-            end
-        end
-
-        currentHoveringAddresses = hoveringAddresses
+    if not hoveringAddresses then
+        return
     end
+
+    clearHighlights()
+
+    local available = true
+
+    for _, address in hoveringAddresses do
+        local pieceType: PieceType = BoardInterface.board[address]
+        local cellObject = BoardInterface.cells[address]
+
+        local colour = highlightColour(cellObject.BackgroundColor3)
+
+        cellObject.BackgroundColor3 = colour
+
+        if pieceType ~= "none" then
+            available = false
+
+            -- add to config
+            cellObject.Transparency = 0.9
+            cellObject.BackgroundColor3 = Color3.new(1, 0.2, 0.2)
+        end
+    end
+
+    setPieceVisibility(objectInfo.object, not available)
+
+    currentHoveringAddresses = hoveringAddresses
 end
 
 
@@ -306,7 +337,10 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
             end
 
             if currentHoveringAddress then
-                local success = BoardInterface.placePiece(currentHoveringAddresses, selected.pieceData.type)
+                local success = BoardInterface.placePiece(
+                    currentHoveringAddresses,
+                    selected.pieceData.type
+                )
 
                 if success then
                     Reserve.removePieceObject(selected)
@@ -314,11 +348,11 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
 
                 currentHoveringAddress = nil
             end
-            
-            selected = nil
 
             clearHighlights()
+            setPieceVisibility(selected.object, false)
             
+            selected = nil
             ContextActionService:UnbindAction(PIECE_ACTION_NAME)
         end
     else

@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
+local client = shared.Client
 local prefabs = ReplicatedStorage.Prefabs
 
 
@@ -12,6 +13,7 @@ local BoardUtils = require(shared.BoardService.Utils)
 local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(script.Config)
 local CellColours = require(script.CellColours)
+local Reserve = require(client.Interface.Reserve)
 
 
 type Board = Types.Board
@@ -101,6 +103,8 @@ function Board.newGame(blockerAddresses: { string }): ()
         cell.BackgroundColor3 = CellColours.unoccupied
         cell.Transparency = 0
     end
+
+    Reserve.scatter()
 end
 
 

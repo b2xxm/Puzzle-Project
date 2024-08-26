@@ -18,7 +18,10 @@ type PieceVariations = { [PieceType]: { PieceShape } }
 type ShapeBounds = { top: number, bottom: number, left: number, right: number }
 
 
-local PIECE_TYPES: { PieceType } = { "red", "orange", "yellow", "green", "lblue", "dblue", "purple", "brown", "grey", "blocker", "none" }
+local PIECE_TYPES: { PieceType } = {
+    "red", "orange", "yellow", "green", "lblue", "dblue",
+    "purple", "brown", "grey", "blocker", "none"
+}
 
 local PIECE_VARIATIONS_MAP: PieceVariations = {
     red = { { 0b110, 0b011 }, { 0b01, 0b11, 0b10 }, { 0b011, 0b110 }, { 0b10, 0b11, 0b01 } },
