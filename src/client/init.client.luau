@@ -14,6 +14,7 @@ local Selector = require(client.Input.Selector)
 
 
 remotes.BroadcastNewBoard.OnClientEvent:Connect(Board.newGame)
+remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
 
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)

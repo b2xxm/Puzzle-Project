@@ -124,9 +124,11 @@ end
 
 
 function Reserve.removePieceObject(objectInfo: PieceObjectInfo): ()
-    for _, otherObjectInfo in reserved do
+    for index, otherObjectInfo in reserved do
         if objectInfo == otherObjectInfo then
             objectInfo.object:Destroy()
+
+            table.remove(reserved, index)
 
             break
         end

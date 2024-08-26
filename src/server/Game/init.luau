@@ -55,6 +55,8 @@ function Game.submit(player: Player, solution: Board): ()
         submission.solution = solution
 
         table.insert(submissions, submission)
+
+        remotes.UpdateFinishers:FireAllClients(player)
     end
 end
 

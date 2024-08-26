@@ -4,6 +4,7 @@ local ContextActionService = game:GetService("ContextActionService")
 
 
 local shared = ReplicatedStorage.Shared
+local remotes = ReplicatedStorage.Remotes
 local client = shared.Client
 
 
@@ -78,7 +79,8 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     local x = selected.object.AbsolutePosition.X + selected.object.AbsoluteSize.X / 2
     local y = selected.object.AbsolutePosition.Y + selected.object.AbsoluteSize.Y / 2
 
-    selected.object:Destroy()
+    Reserve.removePieceObject(selected)
+
     selected = objectInfo
 
     Selector.update(selected, Vector3.new(x, y, 0))
@@ -315,6 +317,10 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
 
                 if success then
                     Reserve.removePieceObject(selected)
+                end
+
+                if #Reserve.reserved == 0 then
+                    remotes.SubmitSolution:FireServer(BoardInterface.board)
                 end
 
                 currentHoveringAddress = nil

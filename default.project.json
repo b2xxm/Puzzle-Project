@@ -12,7 +12,10 @@
         "BroadcastNewBoard": {
           "$className": "RemoteEvent"
         },
-        "UpdatePlayerList": {
+        "UpdateFinishers": {
+          "$className": "RemoteEvent"
+        },
+        "SubmitSolution": {
           "$className": "RemoteEvent"
         }
       },

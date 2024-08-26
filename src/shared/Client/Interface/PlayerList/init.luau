@@ -5,8 +5,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local prefabs = ReplicatedStorage.Prefabs
 
 
+local Colours = require(script.Colours)
+
+
 local player: Player = Players.LocalPlayer
-local rows: { [Player]: Frame } = {}
+local rows: { [Player]: GuiObject } = {}
 
 
 local PlayerList = {}
@@ -35,7 +38,7 @@ function PlayerList.addPlayer(otherPlayer: Player): ()
 end
 
 
-function PlayerList.removePlayer(otherPlayer): ()
+function PlayerList.removePlayer(otherPlayer: Player): ()
     local row = rows[otherPlayer]
 
     if not row then
@@ -43,6 +46,27 @@ function PlayerList.removePlayer(otherPlayer): ()
     end
 
     row:Destroy()
+end
+
+
+function PlayerList.setFinished(otherPlayer: Player): ()
+    local row = rows[otherPlayer]
+
+    if not row then
+        return
+    end
+
+    local name = row:WaitForChild("PlayerName")
+    local background = name:WaitForChild("Background") :: GuiObject
+
+    background.BackgroundColor3 = Colours.finished
+end
+
+
+function PlayerList.reset(): ()
+    for _, row in rows do
+        row.BackgroundColor3 = Colours.unfinished
+    end
 end
 
 
