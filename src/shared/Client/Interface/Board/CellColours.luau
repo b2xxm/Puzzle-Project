@@ -10,5 +10,13 @@ return {
         purple = Color3.fromRGB(155, 55, 255),
         brown = Color3.fromRGB(155, 94, 33),
         grey = Color3.fromRGB(100, 100, 100)
+    },
+    valid = {
+        transparency = 0.9,
+        colour = Color3.new(1, 1, 1)
+    },
+    invalid = {
+        transparency = 0.9,
+        colour = Color3.new(1, 0.2, 0.2)
     }
 }

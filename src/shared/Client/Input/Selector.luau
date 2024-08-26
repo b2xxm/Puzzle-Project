@@ -1,8 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
-local Workspace = game:GetService("Workspace")
-local GuiService = game:GetService("GuiService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -17,6 +15,7 @@ local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local CellColours = require(client.Interface.Board.CellColours)
+local InterfaceUtils = require(client.Interface.Utils)
 
 
 type PieceType = Types.PieceType
@@ -41,7 +40,6 @@ local PIECE_ACTION_INPUTS: PieceActionInputs = {
 
 
 local player: Player = Players.LocalPlayer
-local camera: Camera = Workspace.CurrentCamera
 local selected: PieceObjectInfo? = nil
 local currentHoveringAddress: string? = nil
 local currentHoveringAddresses: { string } = {}
@@ -53,16 +51,6 @@ Selector.inputs = {
     Enum.UserInputType.MouseButton1,
     Enum.UserInputType.MouseMovement
 }
-
-
-local function toScalePosition(position: Vector3): UDim2
-    local inset = (GuiService:GetGuiInset()).Y
-
-    return UDim2.fromScale(
-        position.X / camera.ViewportSize.X,
-        (position.Y + inset) / camera.ViewportSize.Y
-    )
-end
 
 
 local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): ()
@@ -161,22 +149,7 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
 end
 
 
-function highlightColour(colour: Color3): Color3
-    local r, g, b = colour.R, colour.G, colour.B
-    
-    -- add to config
-    local white = 1
-    local alpha = 0.2
-    
-    local newR = r + (white - r) * alpha
-    local newG = g + (white - g) * alpha
-    local newB = b + (white - b) * alpha
-    
-    return Color3.new(newR, newG, newB)
-end
-
-
-function clearHighlights(): ()
+local function clearHighlights(): ()
     for _, address in currentHoveringAddresses do
         local pieceType: PieceType = BoardInterface.board[address]
         local cellObject = BoardInterface.cells[address]
@@ -196,7 +169,7 @@ function clearHighlights(): ()
 end
 
 
-function setPieceVisibility(pieceObject: GuiObject, translucent: boolean): ()
+local function setPieceVisibility(pieceObject: GuiObject, translucent: boolean): ()
     for _, rowContainer in pieceObject:GetChildren() do
         if not rowContainer:IsA("Frame") then
             continue
@@ -214,7 +187,7 @@ end
 
 
 function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
-    objectInfo.object.Position = toScalePosition(position)
+    objectInfo.object.Position = InterfaceUtils.toScalePosition(position.X, position.Y)
 
     local playerGui = player.PlayerGui
     local gameUi = playerGui:WaitForChild("GameUi")
@@ -245,16 +218,14 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
         local pieceType: PieceType = BoardInterface.board[address]
         local cellObject = BoardInterface.cells[address]
 
-        local colour = highlightColour(cellObject.BackgroundColor3)
-
-        cellObject.BackgroundColor3 = colour
+        cellObject.Transparency = CellColours.valid.transparency
+        cellObject.BackgroundColor3 = CellColours.valid.colour
 
         if pieceType ~= "none" then
             available = false
 
-            -- add to config
-            cellObject.Transparency = 0.9
-            cellObject.BackgroundColor3 = Color3.new(1, 0.2, 0.2)
+            cellObject.Transparency = CellColours.invalid.transparency
+            cellObject.BackgroundColor3 = CellColours.invalid.colour
         end
     end
 

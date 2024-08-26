@@ -30,15 +30,18 @@ local Reserve = {}
 Reserve.reserved = reserved
 
 
-function randomPosition()
-    -- fix magic numbers after
+local function randomPosition(): (number, number)
+    local playerGui = player.PlayerGui
+    local gameUi = playerGui:WaitForChild("GameUi")
+    local boardFrame = gameUi:WaitForChild("Board") :: Frame
 
     while true do
         local x = (math.random() * 0.8) + 0.1
+        local y = (math.random() * 0.8) + 0.1
         
-        if x <= 0.35 or x >= 0.65 then
-            local y = (math.random() * 0.8) + 0.1
-            
+        local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
+
+        if not table.find(guiObjects, boardFrame) then
             return x, y
         end
     end
