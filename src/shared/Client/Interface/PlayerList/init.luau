@@ -65,7 +65,10 @@ end
 
 function PlayerList.reset(): ()
     for _, row in rows do
-        row.BackgroundColor3 = Colours.unfinished
+        local name = row:WaitForChild("PlayerName")
+        local background = name:WaitForChild("Background") :: GuiObject
+
+        background.BackgroundColor3 = Colours.unfinished
     end
 end
 
