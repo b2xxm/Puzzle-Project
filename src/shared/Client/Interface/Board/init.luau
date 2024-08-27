@@ -14,6 +14,7 @@ local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(script.Config)
 local CellColours = require(script.CellColours)
 local Reserve = require(client.Interface.Reserve)
+local PlayerList = require(client.Interface.PlayerList)
 
 
 type Board = Types.Board
@@ -105,6 +106,7 @@ function Board.newGame(blockerAddresses: { string }): ()
     end
 
     Reserve.scatter()
+    PlayerList.reset()
 end
 
 

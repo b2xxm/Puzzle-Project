@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
@@ -43,13 +44,20 @@ end
 
 
 function Game.finish(): ()
-    -- finish on time out or all participants submit successfully
-    -- display submissions before resetting board
+    task.wait(3)
+
+    Game.start()
 end
 
 
 function Game.submit(player: Player, solution: Board): ()
     if BoardService.validate(cache.board, solution) then
+        for _, submission in submissions do
+            if submission.player == player then
+                return false
+            end
+        end
+
         local submission = {}
         submission.player = player
         submission.solution = solution
@@ -57,6 +65,10 @@ function Game.submit(player: Player, solution: Board): ()
         table.insert(submissions, submission)
 
         remotes.UpdateFinishers:FireAllClients(player)
+
+        if #submissions == #Players:GetPlayers() then
+            Game.finish()
+        end
     end
 end
 
