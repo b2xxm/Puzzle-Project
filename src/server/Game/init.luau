@@ -43,7 +43,13 @@ end
 
 
 local function checkFinish(): ()
-    if #submissions == #players.active then
+    local activePlayerCount = 0
+
+    for _ in players.active do
+        activePlayerCount += 1
+    end
+
+    if #submissions == activePlayerCount then
         Game.finish()
     end
 end
