@@ -46,6 +46,8 @@ function PlayerList.removePlayer(otherPlayer: Player): ()
     end
 
     row:Destroy()
+
+    rows[otherPlayer] = nil
 end
 
 
