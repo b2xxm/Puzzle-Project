@@ -8,19 +8,15 @@ local remotes = ReplicatedStorage.Remotes
 local Game = require(script.Game)
 
 
-local function playerAdded(player: Player): ()
-    Game.broadcastSpecific(player)
+for _, player in Players:GetPlayers() do
+    Game.playerAdded(player)
 end
 
 
--- temporary
 Game.start()
 
-for _, player in Players:GetPlayers() do
-    playerAdded(player)
-end
 
-
-Players.PlayerAdded:Connect(playerAdded)
+Players.PlayerAdded:Connect(Game.playerAdded)
+Players.PlayerRemoving:Connect(Game.playerRemoving)
 
 remotes.SubmitSolution.OnServerEvent:Connect(Game.submit)

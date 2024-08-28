@@ -1,4 +1,3 @@
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
@@ -11,10 +10,17 @@ local BoardService = require(shared.BoardService)
 local Dices = require(script.Dices)
 
 
+type LookUp<T> = Types.LookUp<T>
 type Board = Types.Board
 
 
 local submissions: { { player: Player, solution: Board } } = {}
+
+local players: { active: LookUp<Player>, inactive: LookUp<Player> } = {
+    active = {},
+    inactive = {}
+}
+
 local cache: { board: Board, blocked: { string } } = {
     board = BoardService.new(),
     blocked = {}
@@ -22,6 +28,25 @@ local cache: { board: Board, blocked: { string } } = {
 
 
 local Game = {}
+
+
+local function broadcastSpecific(player: Player): ()
+    remotes.BroadcastNewBoard:FireClient(player, cache.blocked)
+end
+
+
+local function updateFinishers(player: Player): ()
+    for _, submission in submissions do
+        remotes.UpdateFinishers:FireClient(player, submission.player)
+    end
+end
+
+
+local function checkFinish(): ()
+    if #submissions == #players.active then
+        Game.finish()
+    end
+end
 
 
 function Game.start(): ()
@@ -35,11 +60,6 @@ function Game.start(): ()
     -- start timer limit
     
     remotes.BroadcastNewBoard:FireAllClients(cache.blocked)
-end
-
-
-function Game.broadcastSpecific(player: Player): ()
-    remotes.BroadcastNewBoard:FireClient(player, cache.blocked)
 end
 
 
@@ -66,10 +86,35 @@ function Game.submit(player: Player, solution: Board): ()
 
         remotes.UpdateFinishers:FireAllClients(player)
 
-        if #submissions == #Players:GetPlayers() then
-            Game.finish()
-        end
+        checkFinish()
     end
+end
+
+
+function Game.playerAdded(player: Player): ()
+    players.active[player] = true
+    
+    broadcastSpecific(player)
+    updateFinishers(player)
+end
+
+
+function Game.playerRemoving(player: Player): ()
+    if players.active[player] then
+        for index, submission in submissions do
+            if submission.player == player then
+                table.remove(submission, index)
+            end
+        end
+
+        players.active[player] = nil
+
+        return
+    end
+
+    players.inactive[player] = nil
+
+    checkFinish()
 end
 
 
