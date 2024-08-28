@@ -13,6 +13,7 @@ local PieceService = require(shared.PieceService)
 local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local CellColours = require(client.Interface.Board.CellColours)
+local InterfaceUtils = require(client.Interface.Utils)
 
 
 type PieceType = Types.PieceType
@@ -36,13 +37,15 @@ local function randomPosition(): (number, number)
     local boardFrame = gameUi:WaitForChild("Board") :: Frame
 
     while true do
-        local x = (math.random() * 0.8) + 0.1
-        local y = (math.random() * 0.8) + 0.1
+        local xScale = (math.random() * 0.8) + 0.1
+        local yScale = (math.random() * 0.8) + 0.1
+
+        local xOffset, yOffset = InterfaceUtils.toOffsetPosition(xScale, yScale)
         
-        local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
+        local guiObjects = playerGui:GetGuiObjectsAtPosition(xOffset, yOffset)
 
         if not table.find(guiObjects, boardFrame) then
-            return x, y
+            return xScale, yScale
         end
     end
 end

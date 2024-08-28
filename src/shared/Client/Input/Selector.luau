@@ -189,7 +189,9 @@ end
 
 
 function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
-    objectInfo.object.Position = InterfaceUtils.toScalePosition(position.X, position.Y)
+    local x, y = InterfaceUtils.toScalePosition(position.X, position.Y)
+
+    objectInfo.object.Position = UDim2.fromScale(x, y)
 
     local playerGui = player.PlayerGui
     local gameUi = playerGui:WaitForChild("GameUi")

@@ -8,23 +8,17 @@ local camera: Camera = Workspace.CurrentCamera
 local Utils = {}
 
 
-function Utils.toScalePosition(x: number, y: number): UDim2
+function Utils.toScalePosition(x: number, y: number): (number, number)
     local inset = (GuiService:GetGuiInset()).Y
 
-    return UDim2.fromScale(
-        x / camera.ViewportSize.X,
-        (y + inset) / camera.ViewportSize.Y
-    )
+    return x / camera.ViewportSize.X, (y + inset) / camera.ViewportSize.Y
 end
 
 
-function Utils.toOffsetPosition(x: number, y: number): UDim2
+function Utils.toOffsetPosition(x: number, y: number): (number, number)
     local inset = (GuiService:GetGuiInset()).Y
 
-    return UDim2.fromOffset(
-        x * camera.ViewportSize.X, 
-        (y * camera.ViewportSize.Y) - inset
-    )
+    return x * camera.ViewportSize.X, (y * camera.ViewportSize.Y) - inset
 end
 
 
