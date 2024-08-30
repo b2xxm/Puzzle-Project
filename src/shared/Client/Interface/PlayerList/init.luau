@@ -6,14 +6,7 @@ local TweenService = game:GetService("TweenService")
 local prefabs = ReplicatedStorage.Prefabs
 
 
-local Colours = require(script.Colours)
-
-
-local TWEEN_INFO = TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-local GOALS = {
-    [true] = { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0) },
-    [false] = { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(1, 10, 0.5, 0) }
-}
+local PlayerListConfig = require(script.Config)
 
 
 local player: Player = Players.LocalPlayer
@@ -73,7 +66,7 @@ function PlayerList.setFinished(otherPlayer: Player): ()
     local name = row:WaitForChild("PlayerName")
     local background = name:WaitForChild("Background") :: GuiObject
 
-    background.BackgroundColor3 = Colours.finished
+    background.BackgroundColor3 = PlayerListConfig.colours.finished
 end
 
 
@@ -82,7 +75,7 @@ function PlayerList.reset(): ()
         local name = row:WaitForChild("PlayerName")
         local background = name:WaitForChild("Background") :: GuiObject
 
-        background.BackgroundColor3 = Colours.unfinished
+        background.BackgroundColor3 = PlayerListConfig.colours.unfinished
     end
 end
 
@@ -103,7 +96,7 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
 
     visibilityStatus = not visibilityStatus
 
-    local goal = GOALS[visibilityStatus]
+    local goal = PlayerListConfig.toggle.goals[visibilityStatus]
     
     for _, row in playerList:GetChildren() do
         if not row:IsA("GuiObject") then
@@ -111,7 +104,7 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
         end
 
         local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
-        local newTween = TweenService:Create(rowLabel, TWEEN_INFO, goal)
+        local newTween = TweenService:Create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
 
         newTween.Completed:Connect(function(playbackState: Enum.PlaybackState)
             if playbackState ~= Enum.PlaybackState.Completed then

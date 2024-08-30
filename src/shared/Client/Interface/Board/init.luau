@@ -12,7 +12,6 @@ local BoardService = require(shared.BoardService)
 local BoardUtils = require(shared.BoardService.Utils)
 local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(script.Config)
-local CellColours = require(script.CellColours)
 local Reserve = require(client.Interface.Reserve)
 local PlayerList = require(client.Interface.PlayerList)
 
@@ -79,7 +78,7 @@ local function initialise(): ()
 
             cells[cell.Name] = cell
 
-            cell.BackgroundColor3 = CellColours.unoccupied
+            cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
             cell.Parent = rowContainer
         end
 
@@ -101,7 +100,7 @@ function Board.newGame(blockerAddresses: { string }): ()
             continue
         end
 
-        cell.BackgroundColor3 = CellColours.unoccupied
+        cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
         cell.Transparency = 0
     end
 
@@ -117,7 +116,7 @@ function Board.placePiece(occupyingAddresses: { string }, pieceType: PieceType):
         return false
     end
 
-    local colour = CellColours.occupied[pieceType]
+    local colour = BoardInterfaceConfig.colours.occupied[pieceType]
 
     for _, address in occupyingAddresses do
         local cell = cells[address]
@@ -131,7 +130,7 @@ end
 function Board.removePiece(occupyingAddresses: { string }): ()
     for _, address in occupyingAddresses do
         Board.board[address] = "none"
-        Board.cells[address].BackgroundColor3 = CellColours.unoccupied
+        Board.cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
     end
 end
 

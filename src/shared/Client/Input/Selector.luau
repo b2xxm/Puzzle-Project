@@ -15,7 +15,6 @@ local BoardConfig = require(shared.BoardService.Config)
 local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
-local CellColours = require(client.Interface.Board.CellColours)
 local InterfaceUtils = require(client.Interface.Utils)
 
 
@@ -160,9 +159,9 @@ local function clearHighlights(): ()
             cellObject.Transparency = 1
         else
             if pieceType == "none" then
-                cellObject.BackgroundColor3 = CellColours.unoccupied
+                cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
             else
-                cellObject.BackgroundColor3 = CellColours.occupied[pieceType]
+                cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
             end
 
             cellObject.Transparency = 0
@@ -222,14 +221,14 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
         local pieceType: PieceType = BoardInterface.board[address]
         local cellObject = BoardInterface.cells[address]
 
-        cellObject.Transparency = CellColours.valid.transparency
-        cellObject.BackgroundColor3 = CellColours.valid.colour
+        cellObject.Transparency = BoardInterfaceConfig.colours.valid.transparency
+        cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.valid.colour
 
         if pieceType ~= "none" then
             available = false
 
-            cellObject.Transparency = CellColours.invalid.transparency
-            cellObject.BackgroundColor3 = CellColours.invalid.colour
+            cellObject.Transparency = BoardInterfaceConfig.colours.invalid.transparency
+            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.invalid.colour
         end
     end
 

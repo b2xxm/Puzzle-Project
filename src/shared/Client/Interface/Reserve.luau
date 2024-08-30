@@ -12,7 +12,6 @@ local Types = require(shared.Types)
 local PieceService = require(shared.PieceService)
 local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
-local CellColours = require(client.Interface.Board.CellColours)
 local InterfaceUtils = require(client.Interface.Utils)
 
 
@@ -67,7 +66,7 @@ local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceT
             local pieceCell = pieceCellPrefab:Clone()
             pieceCell.Transparency = 1 - bit
             pieceCell.LayoutOrder = pieceData.metadata.width - bitPosition
-            pieceCell.BackgroundColor3 = CellColours.occupied[pieceType]
+            pieceCell.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
             pieceCell.Parent = rowContainer
         end
 
