@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 
 local prefabs = ReplicatedStorage.Prefabs
@@ -8,11 +9,22 @@ local prefabs = ReplicatedStorage.Prefabs
 local Colours = require(script.Colours)
 
 
+local TWEEN_INFO = TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local GOALS = {
+    [true] = { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0) },
+    [false] = { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(1, 10, 0.5, 0) }
+}
+
+
 local player: Player = Players.LocalPlayer
 local rows: { [Player]: GuiObject } = {}
+local visibilityStatus: boolean = true
+local tweens: { [GuiObject]: Tween } = {}
 
 
 local PlayerList = {}
+PlayerList.actionName = "ToggleList"
+PlayerList.input = Enum.KeyCode.Tab
 
 
 local function initialise(): ()
@@ -71,6 +83,51 @@ function PlayerList.reset(): ()
         local background = name:WaitForChild("Background") :: GuiObject
 
         background.BackgroundColor3 = Colours.unfinished
+    end
+end
+
+
+function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState, _: InputObject): ()
+    if inputState ~= Enum.UserInputState.Begin then
+        return
+    end
+
+    for _, activeTween in tweens do
+        activeTween:Cancel()
+    end
+
+    local playerGui = player.PlayerGui
+    
+    local gameUi = playerGui:WaitForChild("GameUi")
+    local playerList = gameUi:WaitForChild("Players") :: GuiObject
+
+    visibilityStatus = not visibilityStatus
+
+    local goal = GOALS[visibilityStatus]
+    
+    for _, row in playerList:GetChildren() do
+        if not row:IsA("GuiObject") then
+            continue
+        end
+
+        local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
+        local newTween = TweenService:Create(rowLabel, TWEEN_INFO, goal)
+
+        newTween.Completed:Connect(function(playbackState: Enum.PlaybackState)
+            if playbackState ~= Enum.PlaybackState.Completed then
+                if playbackState ~= Enum.PlaybackState.Cancelled then
+                    return
+                end
+            end
+
+            newTween:Destroy()
+            
+            tweens[row] = nil
+        end)
+
+        newTween:Play()
+
+        tweens[row] = newTween
     end
 end
 
