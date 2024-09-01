@@ -239,6 +239,10 @@ end
 
 
 function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): ()
+    if selected and selected.object.Parent == nil then
+        selected = nil
+    end
+
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         if state == Enum.UserInputState.Begin then
             local playerGui = player.PlayerGui
