@@ -17,7 +17,7 @@ type Board = Types.Board
 
 local submissions: { { player: Player, solution: Board } } = {}
 local activeTimerThread: thread = nil
-local currentFinishTime: number = 0
+local currentStartTime: number = 0
 
 local players: { active: LookUp<Player>, inactive: LookUp<Player> } = {
     active = {},
@@ -34,7 +34,12 @@ local Game = {}
 
 
 local function broadcastSpecific(player: Player): ()
-    remotes.BroadcastNewBoard:FireClient(player, cache.blocked, currentFinishTime)
+    remotes.BroadcastNewBoard:FireClient(
+        player,
+        cache.blocked,
+        currentStartTime,
+        GameConfig.maxGameDuration
+    )
 end
 
 
@@ -68,9 +73,13 @@ function Game.start(): ()
 
     BoardService.setBlocked(cache.board, cache.blocked)
 
-    currentFinishTime = time() + GameConfig.maxGameDuration
+    currentStartTime = time()
     
-    remotes.BroadcastNewBoard:FireAllClients(cache.blocked, currentFinishTime)
+    remotes.BroadcastNewBoard:FireAllClients(
+        cache.blocked,
+        currentStartTime,
+        GameConfig.maxGameDuration
+    )
 end
 
 

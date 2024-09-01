@@ -12,7 +12,7 @@ local player: Player = Players.LocalPlayer
 local Timer = {}
 
 
-function Timer.start(finishTime: number): ()
+function Timer.start(startTime: number, duration: number): ()
     local playerGui = player.PlayerGui
     
     local gameUi = playerGui:WaitForChild("GameUi")
@@ -20,10 +20,9 @@ function Timer.start(finishTime: number): ()
     local timer = boardFrame:WaitForChild("Timer")
     local bar = timer:WaitForChild("Bar") :: GuiObject
 
-
-    local duration = finishTime - time()
-    local elapsed = 0
-
+    local elapsed = time() - startTime
+    
+    RunService:UnbindFromRenderStep(UPDATE_NAME)
     RunService:BindToRenderStep(UPDATE_NAME, RENDER_PRIORITY, function(delta: number)
         if elapsed >= duration then
             bar.Size = UDim2.fromScale(1, 0)

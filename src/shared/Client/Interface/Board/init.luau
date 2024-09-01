@@ -88,7 +88,7 @@ local function initialise(): ()
 end
 
 
-function Board.newGame(blockerAddresses: { string }, finishTime: number): ()
+function Board.newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
 
@@ -107,7 +107,7 @@ function Board.newGame(blockerAddresses: { string }, finishTime: number): ()
 
     Reserve.scatter()
     PlayerList.reset()
-    Timer.start(finishTime)
+    Timer.start(startTime, duration)
 end
 
 
