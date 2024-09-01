@@ -7,6 +7,7 @@ local remotes = ReplicatedStorage.Remotes
 
 local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
+local GameConfig = require(script.Config)
 local Dices = require(script.Dices)
 
 
@@ -15,6 +16,8 @@ type Board = Types.Board
 
 
 local submissions: { { player: Player, solution: Board } } = {}
+local activeTimerThread: thread = nil
+local currentFinishTime: number = 0
 
 local players: { active: LookUp<Player>, inactive: LookUp<Player> } = {
     active = {},
@@ -31,7 +34,7 @@ local Game = {}
 
 
 local function broadcastSpecific(player: Player): ()
-    remotes.BroadcastNewBoard:FireClient(player, cache.blocked)
+    remotes.BroadcastNewBoard:FireClient(player, cache.blocked, currentFinishTime)
 end
 
 
@@ -59,18 +62,24 @@ function Game.start(): ()
     BoardService.reset(cache.board)
 
     table.clear(submissions)
+
     cache.blocked = Dices.roll()
+    activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
 
     BoardService.setBlocked(cache.board, cache.blocked)
 
-    -- start timer limit
+    currentFinishTime = time() + GameConfig.maxGameDuration
     
-    remotes.BroadcastNewBoard:FireAllClients(cache.blocked)
+    remotes.BroadcastNewBoard:FireAllClients(cache.blocked, currentFinishTime)
 end
 
 
 function Game.finish(): ()
-    task.wait(3)
+    if coroutine.running() ~= activeTimerThread then
+        task.cancel(activeTimerThread)
+    end
+
+    task.wait(GameConfig.intermissionDuration)
 
     Game.start()
 end

@@ -115,6 +115,8 @@ end
 
 
 function Reserve.scatter(): ()
+    Reserve.removePieceObjects()
+
     for pieceType: PieceType, variations in PieceService.pieceVariationsMap do
         local shapeIndex = math.random(#variations)
         local shape = variations[shapeIndex]
@@ -135,6 +137,15 @@ function Reserve.removePieceObject(objectInfo: PieceObjectInfo): ()
             break
         end
     end
+end
+
+
+function Reserve.removePieceObjects(): ()
+    for _, objectInfo in reserved do
+        objectInfo.object:Destroy()
+    end
+
+    table.clear(reserved)
 end
 
 

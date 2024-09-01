@@ -14,6 +14,7 @@ local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(script.Config)
 local Reserve = require(client.Interface.Reserve)
 local PlayerList = require(client.Interface.PlayerList)
+local Timer = require(script.Timer)
 
 
 type Board = Types.Board
@@ -87,7 +88,7 @@ local function initialise(): ()
 end
 
 
-function Board.newGame(blockerAddresses: { string }): ()
+function Board.newGame(blockerAddresses: { string }, finishTime: number): ()
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
 
@@ -106,6 +107,7 @@ function Board.newGame(blockerAddresses: { string }): ()
 
     Reserve.scatter()
     PlayerList.reset()
+    Timer.start(finishTime)
 end
 
 
