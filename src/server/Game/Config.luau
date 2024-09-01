@@ -1,4 +1,4 @@
 return {
     intermissionDuration = 2,
-    maxGameDuration = 10
+    maxGameDuration = 120
 }
