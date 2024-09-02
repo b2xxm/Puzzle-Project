@@ -73,7 +73,7 @@ function Game.start(): ()
 
     BoardService.setBlocked(cache.board, cache.blocked)
 
-    currentStartTime = time()
+    currentStartTime = tick()
     
     remotes.BroadcastNewBoard:FireAllClients(
         cache.blocked,

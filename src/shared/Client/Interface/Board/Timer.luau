@@ -20,7 +20,7 @@ function Timer.start(startTime: number, duration: number): ()
     local timer = boardFrame:WaitForChild("Timer")
     local bar = timer:WaitForChild("Bar") :: GuiObject
 
-    local elapsed = time() - startTime
+    local elapsed = tick() - startTime
     
     RunService:UnbindFromRenderStep(UPDATE_NAME)
     RunService:BindToRenderStep(UPDATE_NAME, RENDER_PRIORITY, function(delta: number)
