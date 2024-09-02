@@ -187,6 +187,104 @@ local function setPieceVisibility(pieceObject: GuiObject, translucent: boolean):
 end
 
 
+local function begin(input: InputObject): ()
+    local playerGui = player.PlayerGui
+            
+    local x, y = input.Position.X, input.Position.Y
+    local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
+
+    local clickedAddress = nil
+
+    for _, object in guiObjects do
+        for _, reserveInfo in Reserve.reserved do
+            if object == reserveInfo.object then
+                selected = reserveInfo
+                
+                break
+            end
+        end
+
+        if selected then
+            break
+        end
+        
+        if not clickedAddress and BoardInterface.cells[object.Name] then
+            clickedAddress = object.Name
+        end
+    end
+
+    if not selected then
+        if not clickedAddress then
+            return
+        end
+
+        local pieceType: PieceType = BoardInterface.board[clickedAddress]
+
+        if pieceType == "blocker" or pieceType == "none" then
+            return
+        end
+
+        local occupyingAddresses = {}
+
+        for address, otherPieceType in BoardInterface.board do
+            if otherPieceType ~= pieceType then
+                continue
+            end
+
+            table.insert(occupyingAddresses, address)
+        end
+        
+        local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
+        selected = Reserve.generatePiece(pieceData.shape, pieceType)
+
+        BoardInterface.removePiece(occupyingAddresses)
+    end
+
+    Selector.update(selected :: PieceObjectInfo, input.Position)
+
+    ContextActionService:BindAction(
+        PIECE_ACTION_NAME,
+        pieceAction,
+        false,
+        PIECE_ACTION_INPUTS.flip.horizontal,
+        PIECE_ACTION_INPUTS.flip.vertical,
+        PIECE_ACTION_INPUTS.rotate.clockwise,
+        PIECE_ACTION_INPUTS.rotate.counterclockwise
+    )
+end
+
+
+local function release(): ()
+    if not selected then
+        return
+    end
+
+    if currentHoveringAddress then
+        local success = BoardInterface.placePiece(
+            currentHoveringAddresses,
+            selected.pieceData.type
+        )
+        
+        if success then
+            Reserve.removePieceObject(selected)
+
+            if #Reserve.reserved == 0 then
+                remotes.SubmitSolution:FireServer(BoardInterface.board)
+                ContextActionService:UnbindAction(Selector.actionName)
+            end
+        end
+
+        currentHoveringAddress = nil
+    end
+
+    clearHighlights()
+    setPieceVisibility(selected.object, false)
+    
+    selected = nil
+    ContextActionService:UnbindAction(PIECE_ACTION_NAME)
+end
+
+
 function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
     local x, y = InterfaceUtils.toScalePosition(position.X, position.Y)
 
@@ -239,103 +337,20 @@ end
 
 
 function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): ()
+    if state == Enum.UserInputState.Cancel then
+        return
+    end
+    
     if selected and selected.object.Parent == nil then
         selected = nil
     end
 
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         if state == Enum.UserInputState.Begin then
-            local playerGui = player.PlayerGui
-            
-            local x, y = input.Position.X, input.Position.Y
-            local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
-
-            local clickedAddress = nil
-
-            for _, object in guiObjects do
-                for _, reserveInfo in Reserve.reserved do
-                    if object == reserveInfo.object then
-                        selected = reserveInfo
-                        
-                        break
-                    end
-                end
-
-                if selected then
-                    break
-                end
-                
-                if not clickedAddress and BoardInterface.cells[object.Name] then
-                    clickedAddress = object.Name
-                end
-            end
-
-            if not selected then
-                if not clickedAddress then
-                    return
-                end
-
-                local pieceType: PieceType = BoardInterface.board[clickedAddress]
-
-                if pieceType == "blocker" or pieceType == "none" then
-                    return
-                end
-
-                local occupyingAddresses = {}
-
-                for address, otherPieceType in BoardInterface.board do
-                    if otherPieceType ~= pieceType then
-                        continue
-                    end
-
-                    table.insert(occupyingAddresses, address)
-                end
-                
-                local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
-                selected = Reserve.generatePiece(pieceData.shape, pieceType)
-
-                BoardInterface.removePiece(occupyingAddresses)
-            end
-
-            Selector.update(selected :: PieceObjectInfo, input.Position)
-
-            ContextActionService:BindAction(
-                PIECE_ACTION_NAME,
-                pieceAction,
-                false,
-                PIECE_ACTION_INPUTS.flip.horizontal,
-                PIECE_ACTION_INPUTS.flip.vertical,
-                PIECE_ACTION_INPUTS.rotate.clockwise,
-                PIECE_ACTION_INPUTS.rotate.counterclockwise
-            )
+            begin(input)
 
         elseif state == Enum.UserInputState.End then
-            if not selected then
-                return
-            end
-
-            if currentHoveringAddress then
-                local success = BoardInterface.placePiece(
-                    currentHoveringAddresses,
-                    selected.pieceData.type
-                )
-
-                if success then
-                    Reserve.removePieceObject(selected)
-
-                    if #Reserve.reserved == 0 then
-                        remotes.SubmitSolution:FireServer(BoardInterface.board)
-                    end
-                end
-
-                currentHoveringAddress = nil
-            end
-
-            clearHighlights()
-            setPieceVisibility(selected.object, false)
-            
-            selected = nil
-            ContextActionService:UnbindAction(PIECE_ACTION_NAME)
+            release()
         end
     else
         if state ~= Enum.UserInputState.Change or not selected then

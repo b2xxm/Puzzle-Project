@@ -12,9 +12,26 @@ local client = shared.Client
 local Board = require(client.Interface.Board)
 local PlayerList = require(client.Interface.PlayerList)
 local Selector = require(client.Input.Selector)
+local Reserve = require(client.Interface.Reserve)
+local Timer = require(client.Interface.Board.Timer)
 
 
-remotes.BroadcastNewBoard.OnClientEvent:Connect(Board.newGame)
+local function newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
+    Board.newGame(blockerAddresses)
+    Reserve.scatter()
+    PlayerList.reset()
+    Timer.start(startTime, duration)
+    
+    ContextActionService:BindAction(
+        Selector.actionName,
+        Selector.action,
+        false,
+        table.unpack(Selector.inputs)
+    )
+end
+
+
+remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
 
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
@@ -28,11 +45,4 @@ ContextActionService:BindAction(
     PlayerList.toggleVisibility,
     false,
     PlayerList.input
-)
-
-ContextActionService:BindAction(
-    Selector.actionName,
-    Selector.action,
-    false,
-    table.unpack(Selector.inputs)
 )

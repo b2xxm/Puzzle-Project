@@ -3,7 +3,6 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
-local client = shared.Client
 local prefabs = ReplicatedStorage.Prefabs
 
 
@@ -12,9 +11,6 @@ local BoardService = require(shared.BoardService)
 local BoardUtils = require(shared.BoardService.Utils)
 local BoardConfig = require(shared.BoardService.Config)
 local BoardInterfaceConfig = require(script.Config)
-local Reserve = require(client.Interface.Reserve)
-local PlayerList = require(client.Interface.PlayerList)
-local Timer = require(script.Timer)
 
 
 type Board = Types.Board
@@ -88,7 +84,7 @@ local function initialise(): ()
 end
 
 
-function Board.newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
+function Board.newGame(blockerAddresses: { string }): ()
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
 
@@ -115,10 +111,6 @@ function Board.newGame(blockerAddresses: { string }, startTime: number, duration
 
         cell.Transparency = 0
     end
-
-    Reserve.scatter()
-    PlayerList.reset()
-    Timer.start(startTime, duration)
 end
 
 
