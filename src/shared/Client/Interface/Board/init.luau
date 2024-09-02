@@ -92,16 +92,27 @@ function Board.newGame(blockerAddresses: { string }, startTime: number, duration
     BoardService.reset(board)
     BoardService.setBlocked(board, blockerAddresses)
 
+    local blockerPrefab = prefabs.Piece:WaitForChild("Blocker") :: GuiObject
+
     for address in board do
         local cell = cells[address]
+        cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+
+        local blocker = cell:FindFirstChild("Blocker")
 
         if table.find(blockerAddresses, address) then
-            cell.Transparency = 1
+            if not blocker then
+                local newBlocker = blockerPrefab:Clone()
+                newBlocker.Parent = cell
+            end
 
             continue
         end
 
-        cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+        if blocker then
+            blocker:Destroy()
+        end
+
         cell.Transparency = 0
     end
 
