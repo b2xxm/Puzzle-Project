@@ -26,7 +26,14 @@ type PieceActionInputs = {
 }
 
 
+local SELECTOR_ACTION_NAME: string = "PieceSelection"
 local PIECE_ACTION_NAME: string = "PieceAction"
+
+local SELECTOR_ACTION_INPUTS: { Enum.UserInputType } = {
+    Enum.UserInputType.MouseButton1,
+    Enum.UserInputType.MouseMovement
+}
+
 local PIECE_ACTION_INPUTS: PieceActionInputs = {
     flip = {
         horizontal = Enum.KeyCode.R,
@@ -46,11 +53,6 @@ local currentHoveringAddresses: { string } = {}
 
 
 local Selector = {}
-Selector.actionName = "PieceSelection"
-Selector.inputs = {
-    Enum.UserInputType.MouseButton1,
-    Enum.UserInputType.MouseMovement
-}
 
 
 local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): ()
@@ -270,7 +272,8 @@ local function release(): ()
 
             if #Reserve.reserved == 0 then
                 remotes.SubmitSolution:FireServer(BoardInterface.board)
-                ContextActionService:UnbindAction(Selector.actionName)
+
+                Selector.disable()
             end
         end
 
@@ -359,6 +362,21 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
         
         Selector.update(selected, input.Position)
     end
+end
+
+
+function Selector.enable(): ()
+    ContextActionService:BindAction(
+        SELECTOR_ACTION_NAME,
+        Selector.action,
+        false,
+        table.unpack(SELECTOR_ACTION_INPUTS)
+    )
+end
+
+
+function Selector.disable(): ()
+    ContextActionService:UnbindAction(SELECTOR_ACTION_NAME)
 end
 
 

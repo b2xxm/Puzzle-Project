@@ -21,13 +21,7 @@ local function newGame(blockerAddresses: { string }, startTime: number, duration
     Reserve.scatter()
     PlayerList.reset()
     Timer.start(startTime, duration)
-    
-    ContextActionService:BindAction(
-        Selector.actionName,
-        Selector.action,
-        false,
-        table.unpack(Selector.inputs)
-    )
+    Selector.enable()
 end
 
 
