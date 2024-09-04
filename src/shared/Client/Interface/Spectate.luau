@@ -124,7 +124,8 @@ function Spectate.stop(): ()
 end
 
 
-Spectate.enable() -- temporary
+Spectate.enable()
+-- temporary
 
 
 return Spectate

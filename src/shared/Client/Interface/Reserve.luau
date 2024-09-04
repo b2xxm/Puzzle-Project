@@ -31,6 +31,7 @@ Reserve.reserved = reserved
 
 
 local function randomPosition(): (number, number)
+    -- get rid of magic numbers
     local playerGui = player.PlayerGui
     local gameUi = playerGui:WaitForChild("GameUi")
     local boardFrame = gameUi:WaitForChild("Board") :: Frame
