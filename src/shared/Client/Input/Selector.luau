@@ -157,17 +157,13 @@ local function clearHighlights(): ()
         local pieceType: PieceType = BoardInterface.board[address]
         local cellObject = BoardInterface.cells[address]
 
-        if pieceType == "blocker" then
-            cellObject.Transparency = 1
+        if pieceType == "none" or pieceType == "blocker" then
+            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
         else
-            if pieceType == "none" then
-                cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
-            else
-                cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
-            end
-
-            cellObject.Transparency = 0
+            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
         end
+
+        cellObject.Transparency = 0
     end
 end
 
