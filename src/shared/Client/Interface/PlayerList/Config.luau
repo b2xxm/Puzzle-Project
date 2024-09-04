@@ -13,7 +13,7 @@ return {
     hover = {
         tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
         goals = {
-            [true] = { Position = UDim2.new(1, -20, 0.5, 0) },
+            [true] = { Position = UDim2.new(1, -30, 0.5, 0) },
             [false] = { Position = UDim2.new(1, -10, 0.5, 0) }
         }
     }

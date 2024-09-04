@@ -1,13 +1,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 
 
 local shared = ReplicatedStorage.Shared
 local client = shared.Client
 
 
+local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(client.Interface.PlayerList.Config)
 
 
@@ -21,37 +21,18 @@ local SPECTATE_ACTION_INPUTS = {
 local player: Player = Players.LocalPlayer
 local currentHover: GuiObject? = nil
 local previousHover: GuiObject? = nil
-local tweens: { [GuiObject]: Tween } = {}
 
 
 local Spectate = {}
 
 
 local function hover(object: GuiObject, enabled: boolean): ()
-    local oldTween = tweens[object]
-
-    if oldTween then
-        oldTween:Cancel()
-    end
+    TweenUtils.cancel(object)
 
     local goal = PlayerListConfig.hover.goals[enabled]
-    local tween = TweenService:Create(object, PlayerListConfig.hover.tweenInfo, goal)
-
-    tween.Completed:Connect(function(playbackState: Enum.PlaybackState)
-        if playbackState ~= Enum.PlaybackState.Completed then
-            if playbackState ~= Enum.PlaybackState.Cancelled then
-                return
-            end
-        end
-
-        tween:Destroy()
-        
-        tweens[object] = nil
-    end)
-
+    
+    local tween = TweenUtils.create(object, PlayerListConfig.hover.tweenInfo, goal)
     tween:Play()
-
-    tweens[object] = tween
 end
 
 

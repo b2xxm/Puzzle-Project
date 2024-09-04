@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -8,6 +7,7 @@ local prefabs = ReplicatedStorage.Prefabs
 local client = shared.Client
 
 
+local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(script.Config)
 local Spectate = require(client.Interface.Spectate)
 
@@ -15,7 +15,6 @@ local Spectate = require(client.Interface.Spectate)
 local player: Player = Players.LocalPlayer
 local rows: { [Player]: GuiObject } = {}
 local visibilityStatus: boolean = true
-local tweens: { [GuiObject]: Tween } = {}
 
 
 local PlayerList = {}
@@ -88,10 +87,6 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
         return
     end
 
-    for _, activeTween in tweens do
-        activeTween:Cancel()
-    end
-
     local playerGui = player.PlayerGui
     
     local gameUi = playerGui:WaitForChild("GameUi")
@@ -112,24 +107,12 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
             continue
         end
 
+        TweenUtils.cancel(row)
+
         local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
-        local newTween = TweenService:Create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
 
-        newTween.Completed:Connect(function(playbackState: Enum.PlaybackState)
-            if playbackState ~= Enum.PlaybackState.Completed then
-                if playbackState ~= Enum.PlaybackState.Cancelled then
-                    return
-                end
-            end
-
-            newTween:Destroy()
-            
-            tweens[row] = nil
-        end)
-
-        newTween:Play()
-
-        tweens[row] = newTween
+        local tween = TweenUtils.create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
+        tween:Play()
     end
 end
 
