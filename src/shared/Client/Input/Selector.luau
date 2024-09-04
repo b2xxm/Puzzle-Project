@@ -288,6 +288,34 @@ local function release(): ()
 end
 
 
+local function action(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+    if state == Enum.UserInputState.Cancel then
+        return Enum.ContextActionResult.Pass
+    end
+    
+    if selected and selected.object.Parent == nil then
+        selected = nil
+    end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if state == Enum.UserInputState.Begin then
+            begin(input)
+
+        elseif state == Enum.UserInputState.End then
+            release()
+        end
+    else
+        if state ~= Enum.UserInputState.Change or not selected then
+            return Enum.ContextActionResult.Pass
+        end
+        
+        Selector.update(selected, input.Position)
+    end
+
+    return Enum.ContextActionResult.Pass
+end
+
+
 function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
     local x, y = InterfaceUtils.toScalePosition(position.X, position.Y)
 
@@ -339,36 +367,10 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
 end
 
 
-function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): ()
-    if state == Enum.UserInputState.Cancel then
-        return
-    end
-    
-    if selected and selected.object.Parent == nil then
-        selected = nil
-    end
-
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        if state == Enum.UserInputState.Begin then
-            begin(input)
-
-        elseif state == Enum.UserInputState.End then
-            release()
-        end
-    else
-        if state ~= Enum.UserInputState.Change or not selected then
-            return
-        end
-        
-        Selector.update(selected, input.Position)
-    end
-end
-
-
 function Selector.enable(): ()
     ContextActionService:BindAction(
         SELECTOR_ACTION_NAME,
-        Selector.action,
+        action,
         false,
         table.unpack(SELECTOR_ACTION_INPUTS)
     )

@@ -40,3 +40,5 @@ ContextActionService:BindAction(
     false,
     PlayerList.input
 )
+
+require(shared.Client.Interface.Spectate)
