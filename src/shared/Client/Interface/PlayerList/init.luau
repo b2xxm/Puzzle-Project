@@ -94,9 +94,7 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
 
     visibilityStatus = not visibilityStatus
 
-    if visibilityStatus then
-        Spectate.enable()
-    else
+    if not visibilityStatus then
         Spectate.disable()
     end
 
@@ -110,8 +108,17 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
         TweenUtils.cancel(row)
 
         local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
-
         local tween = TweenUtils.create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
+
+        tween.Completed:Once(function(_: Enum.PlaybackState)
+            if not visibilityStatus then
+                return
+            end
+
+            -- check if user can spectate before enabling
+            Spectate.enable()
+        end)
+
         tween:Play()
     end
 end

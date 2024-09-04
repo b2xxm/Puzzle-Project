@@ -52,7 +52,9 @@ local function update(input: InputObject): ()
             continue
         end
 
-        if table.find(guiObjects, name) then
+        local background = name:WaitForChild("Background") :: GuiObject
+
+        if table.find(guiObjects, background) then
             currentHover = name
             
             break
@@ -85,8 +87,6 @@ local function action(_: string, state: Enum.UserInputState, input: InputObject)
 
     elseif input.UserInputType == Enum.UserInputType.MouseMovement then
         if state == Enum.UserInputState.Change then
-            -- highlight and push player name if hovering
-
             update(input)
         end
     end
