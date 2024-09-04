@@ -3,10 +3,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 
+local shared = ReplicatedStorage.Shared
 local prefabs = ReplicatedStorage.Prefabs
+local client = shared.Client
 
 
 local PlayerListConfig = require(script.Config)
+local Spectate = require(client.Interface.Spectate)
 
 
 local player: Player = Players.LocalPlayer
@@ -95,6 +98,12 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
     local playerList = gameUi:WaitForChild("Players") :: GuiObject
 
     visibilityStatus = not visibilityStatus
+
+    if visibilityStatus then
+        Spectate.enable()
+    else
+        Spectate.disable()
+    end
 
     local goal = PlayerListConfig.toggle.goals[visibilityStatus]
     

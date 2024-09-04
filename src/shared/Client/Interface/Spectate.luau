@@ -115,7 +115,6 @@ end
 
 
 function Spectate.enable(): ()
-    -- allow spectate selection
     -- ensure that player has finished the board
 
     ContextActionService:BindAction(
@@ -129,7 +128,8 @@ end
 
 function Spectate.disable(): ()
     -- stop receiving broadcast and clear current broadcast
-    -- disable spectate selection
+
+    ContextActionService:UnbindAction(SPECTATE_ACTION_NAME)
 end
 
 
