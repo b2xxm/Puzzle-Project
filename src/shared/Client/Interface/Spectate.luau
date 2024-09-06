@@ -8,8 +8,13 @@ local remotes = ReplicatedStorage.Remotes
 local client = shared.Client
 
 
+local Types = require(shared.Types)
 local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(client.Interface.PlayerList.Config)
+local BoardInterface = require(client.Interface.Board)
+
+
+type Board = Types.Board
 
 
 local SPECTATE_ACTION_NAME = "Spectate"
@@ -81,9 +86,13 @@ end
 
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local result = remotes.Spectate.Subscribe:InvokeServer(shouldSubscribe, newName, oldName)
+    local board: Board? = remotes.Spectate.Subscribe:InvokeServer(shouldSubscribe, newName, oldName)
+    
+    if not board then
+        return
+    end
 
-    print(result)
+    BoardInterface.loadBoard(board)
 end
 
 

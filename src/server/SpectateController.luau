@@ -82,7 +82,7 @@ function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, 
 
     print(player, "subscribed to", newPlayer)
 
-    return remotes.Spectate.Request:InvokeClient(newPlayer, true)
+    return remotes.Spectate.Request:InvokeClient(newPlayer, true) :: Board
 end
 
 

@@ -134,8 +134,27 @@ end
 
 function Board.removePiece(occupyingAddresses: { string }): ()
     for _, address in occupyingAddresses do
-        Board.board[address] = "none"
-        Board.cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+        board[address] = "none"
+        cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+    end
+end
+
+
+function Board.loadBoard(boardToLoad: Board): ()
+    for address, pieceType: PieceType in boardToLoad do
+        if pieceType == "blocker" then
+            continue
+        end
+
+        board[address] = pieceType
+
+        if pieceType == "none" then
+            cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+
+            continue
+        end
+
+        cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
     end
 end
 
