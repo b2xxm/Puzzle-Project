@@ -69,12 +69,10 @@ function Game.start(): ()
     BoardService.reset(cache.board)
     Submissions.clear()
     SpectateController.stopAllBroadcasts()
+    BoardService.setBlocked(cache.board, cache.blocked)
 
     cache.blocked = Dices.roll()
     activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
-
-    BoardService.setBlocked(cache.board, cache.blocked)
-
     currentStartTime = tick()
     
     remotes.BroadcastNewBoard:FireAllClients(
@@ -103,6 +101,7 @@ function Game.submit(player: Player, solution: Board): ()
         end
 
         Submissions.add(player, solution)
+        SpectateController.onSubmit(player)
 
         remotes.UpdateFinishers:FireAllClients(player)
 

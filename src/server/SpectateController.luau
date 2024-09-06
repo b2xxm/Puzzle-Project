@@ -12,6 +12,7 @@ local Submissions = require(ServerScriptService.Server.Game.Submissions)
 
 
 type Board = Types.Board
+type ReservedPieces = Types.ReservedPieces
 
 
 local subscriptions: { [Player]: { Player } } = {}
@@ -41,22 +42,22 @@ local function unsubscribe(player: Player, broadcaster: Player): ()
 end
 
 
-function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, newName: string, oldName: string?): Board?
-    local newPlayer = Players[newName]
+function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, selected: string, previous: string?): (Board?, ReservedPieces?)
+    local selectedPlayer = Players[selected]
 
     if not shouldSubscribe then
-        unsubscribe(player, newPlayer)
+        unsubscribe(player, selectedPlayer)
 
         return Submissions.get(player)
     end
 
-    if oldName then
-        local oldPlayer = Players[oldName]
+    if previous then
+        local previousPlayer = Players[previous]
 
-        unsubscribe(player, oldPlayer)
+        unsubscribe(player, previousPlayer)
     end
 
-    if player == newPlayer then
+    if player == selectedPlayer then
         return Submissions.get(player)
     end
 
@@ -64,21 +65,21 @@ function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, 
         return
     end
 
-    local newPlayerSolution = Submissions.get(newPlayer)
+    local selectedPlayerSolution = Submissions.get(selectedPlayer)
 
-    if newPlayerSolution then
-        return newPlayerSolution
+    if selectedPlayerSolution then
+        return selectedPlayerSolution
     end
 
-    if not subscriptions[newPlayer] then
-        subscriptions[newPlayer] = {}
+    if not subscriptions[selectedPlayer] then
+        subscriptions[selectedPlayer] = {}
     end
 
-    table.insert(subscriptions[newPlayer], player)
+    table.insert(subscriptions[selectedPlayer], player)
 
-    local board = remotes.Spectate.Request:InvokeClient(newPlayer, true)
+    local board: Board, pieces: ReservedPieces = remotes.Spectate.Request:InvokeClient(selectedPlayer, true)
 
-    return board
+    return board, pieces
 end
 
 
@@ -104,6 +105,15 @@ end
 function SpectateController.stopAllBroadcasts(): ()
     for broadcaster in subscriptions do
         SpectateController.stopBroadcast(broadcaster)
+    end
+end
+
+
+function SpectateController.onSubmit(broadcaster: Player): ()
+    remotes.Spectate.Request:InvokeClient(broadcaster, false)
+
+    if subscriptions[broadcaster] then
+        subscriptions[broadcaster] = nil
     end
 end
 

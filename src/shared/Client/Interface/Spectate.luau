@@ -12,10 +12,12 @@ local Types = require(shared.Types)
 local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(client.Interface.PlayerList.Config)
 local BoardInterface = require(client.Interface.Board)
+local Reserve = require(client.Interface.Reserve)
 
 
 type Board = Types.Board
 type PieceObjectInfo = Types.PieceObjectInfo
+type ReservedPieces = Types.ReservedPieces
 
 
 local SPECTATE_ACTION_NAME = "Spectate"
@@ -87,7 +89,7 @@ end
 
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local board: Board? = remotes.Spectate.Subscribe:InvokeServer(
+    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(
         shouldSubscribe,
         newName,
         oldName
@@ -98,6 +100,16 @@ local function subscribe(shouldSubscribe: boolean, newName: string, oldName: str
     end
 
     BoardInterface.loadBoard(board)
+    Reserve.removePieceObjects()
+
+    if pieces then
+        for _, piece in pieces do
+            local pieceData = piece.pieceData
+    
+            local pieceObject = Reserve.generatePiece(pieceData.shape, pieceData.type)
+            pieceObject.object.Position = piece.position
+        end
+    end
 end
 
 
@@ -173,8 +185,6 @@ end
 
 
 function Spectate.disable(): ()
-    -- stop receiving broadcast and clear current broadcast
-
     ContextActionService:UnbindAction(SPECTATE_ACTION_NAME)
 
     if currentHover then

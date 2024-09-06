@@ -22,6 +22,7 @@ local Spectate = require(client.Interface.Spectate)
 type Board = Types.Board
 type PieceType = Types.PieceType
 type PieceObjectInfo = Types.PieceObjectInfo
+type ReservedPieces = Types.ReservedPieces
 type PieceActionInputs = {
     flip: { horizontal: Enum.KeyCode, vertical: Enum.KeyCode },
     rotate: { counterclockwise: Enum.KeyCode, clockwise: Enum.KeyCode },
@@ -387,11 +388,21 @@ function Selector.disable(): ()
 end
 
 
-function Selector.setBroadcastStatus(enabled: boolean): Board?
+function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?)
     shouldBroadcast = enabled
 
     if shouldBroadcast then
-        return BoardInterface.board
+        local pieces = {}
+
+        for _, pieceObjectInfo in Reserve.reserved do
+            local pieceInfo = {}
+            pieceInfo.pieceData = pieceObjectInfo.pieceData
+            pieceInfo.position = pieceObjectInfo.object.Position
+
+            table.insert(pieces, pieceInfo)
+        end
+
+        return BoardInterface.board, pieces
     end
 
     return
