@@ -26,6 +26,7 @@ local selected: GuiObject? = nil
 
 
 local Spectate = {}
+Spectate.canEnable = false
 
 
 local function hover(object: GuiObject, enabled: boolean): ()
@@ -81,6 +82,7 @@ end
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
     local result = remotes.Spectate.Subscribe:InvokeServer(shouldSubscribe, newName, oldName)
+
     print(result)
 end
 
@@ -143,7 +145,9 @@ end
 
 
 function Spectate.enable(): ()
-    -- ensure that player has finished the board
+    if not Spectate.canEnable then
+        return
+    end
 
     ContextActionService:BindAction(
         SPECTATE_ACTION_NAME,
@@ -158,6 +162,12 @@ function Spectate.disable(): ()
     -- stop receiving broadcast and clear current broadcast
 
     ContextActionService:UnbindAction(SPECTATE_ACTION_NAME)
+
+    if currentHover then
+        hover(currentHover, false)
+
+        currentHover = nil
+    end
 end
 
 

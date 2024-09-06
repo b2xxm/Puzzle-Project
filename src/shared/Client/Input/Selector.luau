@@ -16,6 +16,7 @@ local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local InterfaceUtils = require(client.Interface.Utils)
+local Spectate = require(client.Interface.Spectate)
 
 
 type PieceType = Types.PieceType
@@ -370,11 +371,17 @@ function Selector.enable(): ()
         false,
         table.unpack(SELECTOR_ACTION_INPUTS)
     )
+
+    Spectate.canEnable = false
+    Spectate.disable()
 end
 
 
 function Selector.disable(): ()
     ContextActionService:UnbindAction(SELECTOR_ACTION_NAME)
+
+    Spectate.canEnable = true
+    Spectate.enable()
 end
 
 

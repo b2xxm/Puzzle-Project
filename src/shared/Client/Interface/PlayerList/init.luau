@@ -115,7 +115,6 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
                 return
             end
 
-            -- check if user can spectate before enabling
             Spectate.enable()
         end)
 
