@@ -17,6 +17,21 @@
         },
         "SubmitSolution": {
           "$className": "RemoteEvent"
+        },
+        "Spectate": {
+          "$className": "Folder",
+          "Broadcast": {
+            "$className": "UnreliableRemoteEvent"
+          },
+          "Subscribe": {
+            "$className": "RemoteFunction"
+          },
+          "Request": {
+            "$className": "RemoteEvent"
+          },
+          "Update": {
+            "$className": "RemoteEvent"
+          }
         }
       },
       "Prefabs": {

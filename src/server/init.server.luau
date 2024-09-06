@@ -6,6 +6,7 @@ local remotes = ReplicatedStorage.Remotes
 
 
 local Game = require(script.Game)
+local SpectateController = require(script.SpectateController)
 
 
 for _, player in Players:GetPlayers() do
@@ -20,3 +21,5 @@ Players.PlayerAdded:Connect(Game.playerAdded)
 Players.PlayerRemoving:Connect(Game.playerRemoving)
 
 remotes.SubmitSolution.OnServerEvent:Connect(Game.submit)
+
+remotes.Spectate.Subscribe.OnServerInvoke = SpectateController.subscribe

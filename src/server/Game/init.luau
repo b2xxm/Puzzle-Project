@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -9,13 +10,14 @@ local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
 local GameConfig = require(script.Config)
 local Dices = require(script.Dices)
+local Submissions = require(script.Submissions)
+local SpectateController = require(ServerScriptService.Server.SpectateController)
 
 
 type LookUp<T> = Types.LookUp<T>
 type Board = Types.Board
 
 
-local submissions: { { player: Player, solution: Board } } = {}
 local activeTimerThread: thread = nil
 local currentStartTime: number = 0
 
@@ -44,8 +46,8 @@ end
 
 
 local function updateFinishers(player: Player): ()
-    for _, submission in submissions do
-        remotes.UpdateFinishers:FireClient(player, submission.player)
+    for otherPlayer in Submissions.list do
+        remotes.UpdateFinishers:FireClient(player, otherPlayer)
     end
 end
 
@@ -57,7 +59,7 @@ local function checkFinish(): ()
         activePlayerCount += 1
     end
 
-    if #submissions == activePlayerCount then
+    if Submissions.getCount() == activePlayerCount then
         Game.finish()
     end
 end
@@ -65,8 +67,8 @@ end
 
 function Game.start(): ()
     BoardService.reset(cache.board)
-
-    table.clear(submissions)
+    Submissions.clear()
+    SpectateController.stopAllBroadcasts()
 
     cache.blocked = Dices.roll()
     activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
@@ -96,17 +98,11 @@ end
 
 function Game.submit(player: Player, solution: Board): ()
     if BoardService.validate(cache.board, solution) then
-        for _, submission in submissions do
-            if submission.player == player then
-                return false
-            end
+        if Submissions.get(player) then
+            return
         end
 
-        local submission = {}
-        submission.player = player
-        submission.solution = solution
-
-        table.insert(submissions, submission)
+        Submissions.add(player, solution)
 
         remotes.UpdateFinishers:FireAllClients(player)
 
@@ -125,11 +121,7 @@ end
 
 function Game.playerRemoving(player: Player): ()
     if players.active[player] then
-        for index, submission in submissions do
-            if submission.player == player then
-                table.remove(submission, index)
-            end
-        end
+        Submissions.remove(player)
 
         players.active[player] = nil
 
@@ -139,6 +131,7 @@ function Game.playerRemoving(player: Player): ()
     players.inactive[player] = nil
 
     checkFinish()
+    SpectateController.stopBroadcast(player)
 end
 
 

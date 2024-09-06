@@ -7,7 +7,7 @@ return {
         tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
         goals = {
             [true] = { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0) },
-            [false] = { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(1, 15, 0.5, 0) }
+            [false] = { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(1, 20, 0.5, 0) }
         }
     },
     hover = {

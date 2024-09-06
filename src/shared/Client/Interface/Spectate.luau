@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
+local remotes = ReplicatedStorage.Remotes
 local client = shared.Client
 
 
@@ -21,6 +22,7 @@ local SPECTATE_ACTION_INPUTS = {
 local player: Player = Players.LocalPlayer
 local currentHover: GuiObject? = nil
 local previousHover: GuiObject? = nil
+local selected: GuiObject? = nil
 
 
 local Spectate = {}
@@ -77,12 +79,57 @@ local function update(input: InputObject): ()
 end
 
 
+local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
+    local result = remotes.Spectate.Subscribe:InvokeServer(shouldSubscribe, newName, oldName)
+    print(result)
+end
+
+
+local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
+    local newSelectRow = newSelection.Parent :: Instance
+
+    local indicator = newSelection:WaitForChild("Indicator") :: GuiObject
+    indicator.Visible = newSelectRow.Name ~= player.Name
+
+    if oldSelection then
+        local oldSelectionRow = oldSelection.Parent :: Instance
+
+        subscribe(true, newSelectRow.Name, oldSelectionRow.Name)
+
+        local oldIndicator = oldSelection:WaitForChild("Indicator") :: GuiObject
+        oldIndicator.Visible = false
+    else
+        subscribe(true, newSelectRow.Name, nil)
+    end
+
+    selected = newSelection
+end
+
+
+local function unselect(currentSelection: GuiObject): ()
+    local row = currentSelection.Parent :: Instance
+
+    subscribe(false, row.Name, nil)
+
+    local indicator = currentSelection:WaitForChild("Indicator") :: GuiObject
+    indicator.Visible = false
+
+    selected = nil
+end
+
+
 local function action(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         if state == Enum.UserInputState.Begin then
-            -- select player to receive broadcast from
-            -- or if same selected player then stop broadcast
-            -- and other logic regarding switching to different broadcast
+            if not currentHover then
+                return Enum.ContextActionResult.Pass
+            end
+            
+            if selected ~= currentHover then
+                selectNew(currentHover, selected)
+            else
+                unselect(selected :: GuiObject)
+            end
         end
 
     elseif input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -122,10 +169,6 @@ end
 function Spectate.stop(): ()
     -- stop receiving broadcast and clear current broadcast
 end
-
-
-Spectate.enable()
--- temporary
 
 
 return Spectate

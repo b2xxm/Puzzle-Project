@@ -41,4 +41,6 @@ ContextActionService:BindAction(
     PlayerList.input
 )
 
-require(shared.Client.Interface.Spectate)
+
+-- temporary
+require(shared.Client.Interface.Spectate).enable()
