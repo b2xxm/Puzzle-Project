@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
+local remotes = ReplicatedStorage.Remotes
 
 
 local Types = require(shared.Types)
@@ -38,6 +39,8 @@ local function unsubscribe(player: Player, broadcaster: Player): ()
         print(broadcaster, "stopped broadcasting")
 
         subscriptions[broadcaster] = nil
+
+        remotes.Spectate.Request:InvokeClient(broadcaster, false)
     end
 end
 
@@ -73,16 +76,13 @@ function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, 
 
     if not subscriptions[newPlayer] then
         subscriptions[newPlayer] = {}
-
-        -- request client B to start broadcasting/ updating
-        print(newPlayer, "started broadcasting")
     end
 
     table.insert(subscriptions[newPlayer], player)
 
     print(player, "subscribed to", newPlayer)
 
-    return
+    return remotes.Spectate.Request:InvokeClient(newPlayer, true)
 end
 
 

@@ -28,6 +28,8 @@ end
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
 
+remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
+
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 
@@ -40,7 +42,3 @@ ContextActionService:BindAction(
     false,
     PlayerList.input
 )
-
-
--- temporary
-require(shared.Client.Interface.Spectate).enable()

@@ -27,7 +27,7 @@
             "$className": "RemoteFunction"
           },
           "Request": {
-            "$className": "RemoteEvent"
+            "$className": "RemoteFunction"
           },
           "Update": {
             "$className": "RemoteEvent"

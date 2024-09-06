@@ -19,6 +19,7 @@ local InterfaceUtils = require(client.Interface.Utils)
 local Spectate = require(client.Interface.Spectate)
 
 
+type Board = Types.Board
 type PieceType = Types.PieceType
 type PieceObjectInfo = Types.PieceObjectInfo
 type PieceActionInputs = {
@@ -51,6 +52,7 @@ local player: Player = Players.LocalPlayer
 local selected: PieceObjectInfo? = nil
 local currentHoveringAddress: string? = nil
 local currentHoveringAddresses: { string } = {}
+local shouldBroadcast: boolean = false
 
 
 local Selector = {}
@@ -382,6 +384,17 @@ function Selector.disable(): ()
 
     Spectate.canEnable = true
     Spectate.enable()
+end
+
+
+function Selector.setBroadcastStatus(enabled: boolean): Board?
+    shouldBroadcast = enabled
+
+    if shouldBroadcast then
+        return BoardInterface.board
+    end
+
+    return
 end
 
 
