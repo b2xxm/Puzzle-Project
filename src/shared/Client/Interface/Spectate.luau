@@ -15,6 +15,7 @@ local BoardInterface = require(client.Interface.Board)
 
 
 type Board = Types.Board
+type PieceObjectInfo = Types.PieceObjectInfo
 
 
 local SPECTATE_ACTION_NAME = "Spectate"
@@ -86,7 +87,11 @@ end
 
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local board: Board? = remotes.Spectate.Subscribe:InvokeServer(shouldSubscribe, newName, oldName)
+    local board: Board? = remotes.Spectate.Subscribe:InvokeServer(
+        shouldSubscribe,
+        newName,
+        oldName
+    )
     
     if not board then
         return
@@ -105,10 +110,10 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
     if oldSelection then
         local oldSelectionRow = oldSelection.Parent :: Instance
 
-        subscribe(true, newSelectRow.Name, oldSelectionRow.Name)
-
         local oldIndicator = oldSelection:WaitForChild("Indicator") :: GuiObject
         oldIndicator.Visible = false
+
+        subscribe(true, newSelectRow.Name, oldSelectionRow.Name)
     else
         subscribe(true, newSelectRow.Name, nil)
     end
@@ -176,6 +181,10 @@ function Spectate.disable(): ()
         hover(currentHover, false)
 
         currentHover = nil
+    end
+
+    if selected then
+        unselect(selected)
     end
 end
 

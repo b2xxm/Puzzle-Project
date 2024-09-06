@@ -31,13 +31,9 @@ local function unsubscribe(player: Player, broadcaster: Player): ()
 
     if index then
         table.remove(list, index)
-
-        print(player, "unsubscribed from", broadcaster)
     end
 
     if #list == 0 then
-        print(broadcaster, "stopped broadcasting")
-
         subscriptions[broadcaster] = nil
 
         remotes.Spectate.Request:InvokeClient(broadcaster, false)
@@ -80,9 +76,9 @@ function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, 
 
     table.insert(subscriptions[newPlayer], player)
 
-    print(player, "subscribed to", newPlayer)
+    local board = remotes.Spectate.Request:InvokeClient(newPlayer, true)
 
-    return remotes.Spectate.Request:InvokeClient(newPlayer, true) :: Board
+    return board
 end
 
 

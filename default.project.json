@@ -29,7 +29,7 @@
           "Request": {
             "$className": "RemoteFunction"
           },
-          "Update": {
+          "Simulate": {
             "$className": "RemoteEvent"
           }
         }
