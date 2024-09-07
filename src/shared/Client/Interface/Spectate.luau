@@ -13,6 +13,7 @@ local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(client.Interface.PlayerList.Config)
 local BoardInterface = require(client.Interface.Board)
 local Reserve = require(client.Interface.Reserve)
+local InterfaceUtils = require(client.Interface.Utils)
 
 
 type Board = Types.Board
@@ -31,10 +32,21 @@ local player: Player = Players.LocalPlayer
 local currentHover: GuiObject? = nil
 local previousHover: GuiObject? = nil
 local selected: GuiObject? = nil
+local playerList: GuiObject = nil
+local cursor: GuiObject = nil
 
 
 local Spectate = {}
 Spectate.canEnable = false
+
+
+local function init(): ()
+    local playerGui = player.PlayerGui
+    local gameUi = playerGui:WaitForChild("GameUi")
+
+    cursor = gameUi:WaitForChild("Cursor") :: GuiObject
+    playerList = gameUi:WaitForChild("Players") :: Frame
+end
 
 
 local function hover(object: GuiObject, enabled: boolean): ()
@@ -49,9 +61,6 @@ end
 
 local function update(input: InputObject): ()
     local playerGui = player.PlayerGui
-    local gameUi = playerGui:WaitForChild("GameUi")
-    local playerList = gameUi:WaitForChild("Players") :: Frame
-        
     local guiObjects = playerGui:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
 
     previousHover = currentHover
@@ -89,11 +98,18 @@ end
 
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(
+    local board: Board?, pieces: ReservedPieces?, mousePosition: UDim2? = remotes.Spectate.Subscribe:InvokeServer(
         shouldSubscribe,
         newName,
         oldName
     )
+
+    if mousePosition then
+        cursor.Position = mousePosition
+        cursor.Visible = true
+    else
+        cursor.Visible = false
+    end
     
     if not board then
         return
@@ -199,14 +215,13 @@ function Spectate.disable(): ()
 end
 
 
-function Spectate.start(): ()
-    -- start receiving broadcast
+function Spectate.moveMouse(mousePosition: Vector3): ()
+    local x, y = InterfaceUtils.toScalePosition(mousePosition.X, mousePosition.Y)
+    cursor.Position = UDim2.fromScale(x, y)
 end
 
 
-function Spectate.stop(): ()
-    -- stop receiving broadcast and clear current broadcast
-end
+init()
 
 
 return Spectate

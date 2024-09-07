@@ -14,6 +14,7 @@ local PlayerList = require(client.Interface.PlayerList)
 local Selector = require(client.Input.Selector)
 local Reserve = require(client.Interface.Reserve)
 local Timer = require(client.Interface.Board.Timer)
+local Spectate = require(client.Interface.Spectate)
 
 
 local function newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
@@ -27,13 +28,14 @@ end
 
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
-
-remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
+remotes.Spectate.Broadcast.OnClientEvent:Connect(Spectate.moveMouse)
 
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
+
+remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
 
 
 ContextActionService:BindAction(

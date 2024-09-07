@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
+local UserInputService = game:GetService("UserInputService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -54,9 +55,18 @@ local selected: PieceObjectInfo? = nil
 local currentHoveringAddress: string? = nil
 local currentHoveringAddresses: { string } = {}
 local shouldBroadcast: boolean = false
+local boardFrame: GuiObject = nil
 
 
 local Selector = {}
+
+
+local function init(): ()
+    local playerGui = player.PlayerGui
+    local gameUi = playerGui:WaitForChild("GameUi")
+
+    boardFrame = gameUi:WaitForChild("Board") :: GuiObject
+end
 
 
 local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): ()
@@ -305,6 +315,10 @@ local function action(_: string, state: Enum.UserInputState, input: InputObject)
             release()
         end
     else
+        if shouldBroadcast then
+            remotes.Spectate.Broadcast:FireServer(input.Position)
+        end
+
         if state ~= Enum.UserInputState.Change or not selected then
             return Enum.ContextActionResult.Pass
         end
@@ -318,13 +332,11 @@ end
 
 function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
     local x, y = InterfaceUtils.toScalePosition(position.X, position.Y)
+    local scalePosition = UDim2.fromScale(x, y)
 
-    objectInfo.object.Position = UDim2.fromScale(x, y)
+    objectInfo.object.Position = scalePosition
 
     local playerGui = player.PlayerGui
-    local gameUi = playerGui:WaitForChild("GameUi")
-    local boardFrame = gameUi:WaitForChild("Board") :: Frame
-        
     local guiObjects = playerGui:GetGuiObjectsAtPosition(position.X, position.Y)
 
     if not table.find(guiObjects, boardFrame) then
@@ -388,7 +400,7 @@ function Selector.disable(): ()
 end
 
 
-function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?)
+function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?, UDim2?)
     shouldBroadcast = enabled
 
     if shouldBroadcast then
@@ -402,11 +414,18 @@ function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?
             table.insert(pieces, pieceInfo)
         end
 
-        return BoardInterface.board, pieces
+        local mousePosition = UserInputService:GetMouseLocation()
+        local scaleX, scaleY = InterfaceUtils.toScalePosition(mousePosition.X, mousePosition.Y)
+        local scalePosition = UDim2.fromScale(scaleX, scaleY)
+
+        return BoardInterface.board, pieces, scalePosition
     end
 
     return
 end
+
+
+init()
 
 
 return Selector

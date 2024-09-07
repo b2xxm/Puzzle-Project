@@ -22,19 +22,19 @@ local SpectateController = {}
 
 
 local function unsubscribe(player: Player, broadcaster: Player): ()
-    local list = subscriptions[broadcaster]
+    local subscribers = subscriptions[broadcaster]
 
-    if not list then
+    if not subscribers then
         return
     end
 
-    local index = table.find(list, player)
+    local index = table.find(subscribers, player)
 
     if index then
-        table.remove(list, index)
+        table.remove(subscribers, index)
     end
 
-    if #list == 0 then
+    if #subscribers == 0 then
         subscriptions[broadcaster] = nil
 
         remotes.Spectate.Request:InvokeClient(broadcaster, false)
@@ -42,7 +42,7 @@ local function unsubscribe(player: Player, broadcaster: Player): ()
 end
 
 
-function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, selected: string, previous: string?): (Board?, ReservedPieces?)
+function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, selected: string, previous: string?): (Board?, ReservedPieces?, UDim2?)
     local selectedPlayer = Players[selected]
 
     if not shouldSubscribe then
@@ -77,20 +77,18 @@ function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, 
 
     table.insert(subscriptions[selectedPlayer], player)
 
-    local board: Board, pieces: ReservedPieces = remotes.Spectate.Request:InvokeClient(selectedPlayer, true)
-
-    return board, pieces
+    return remotes.Spectate.Request:InvokeClient(selectedPlayer, true)
 end
 
 
 function SpectateController.stopBroadcast(broadcaster: Player): ()
-    local list = subscriptions[broadcaster]
+    local subscribers = subscriptions[broadcaster]
 
-    if list then
+    if subscribers then
         while true do
-            local player = list[1]
+            local subscriber = subscribers[1]
 
-            unsubscribe(player, broadcaster)
+            unsubscribe(subscriber, broadcaster)
 
             if not subscriptions[broadcaster] then
                 break
@@ -112,8 +110,15 @@ end
 function SpectateController.onSubmit(broadcaster: Player): ()
     remotes.Spectate.Request:InvokeClient(broadcaster, false)
 
-    if subscriptions[broadcaster] then
-        subscriptions[broadcaster] = nil
+    subscriptions[broadcaster] = nil
+end
+
+
+function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector3): ()
+    local subscribers = subscriptions[broadcaster]
+
+    for _, subscriber in subscribers do
+        remotes.Spectate.Broadcast:FireClient(subscriber, mousePosition)
     end
 end
 
