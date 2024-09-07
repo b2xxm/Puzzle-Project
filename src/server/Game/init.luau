@@ -66,10 +66,6 @@ end
 
 
 function Game.start(): ()
-    BoardService.reset(cache.board)
-    Submissions.clear()
-    SpectateController.stopAllBroadcasts()
-
     cache.blocked = Dices.roll()
     activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
     currentStartTime = tick()
@@ -91,6 +87,9 @@ function Game.finish(): ()
 
     task.wait(GameConfig.intermissionDuration)
 
+    BoardService.reset(cache.board)
+    Submissions.clear()
+    SpectateController.stopAllBroadcasts()
     Game.start()
 end
 
