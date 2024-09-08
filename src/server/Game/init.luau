@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Workspace = game:GetService("Workspace")
 
 
 local shared = ReplicatedStorage.Shared
@@ -68,7 +69,7 @@ end
 function Game.start(): ()
     cache.blocked = Dices.roll()
     activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
-    currentStartTime = tick()
+    currentStartTime = Workspace:GetServerTimeNow()
 
     BoardService.setBlocked(cache.board, cache.blocked)
     

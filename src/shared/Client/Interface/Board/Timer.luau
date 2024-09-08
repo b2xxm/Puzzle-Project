@@ -1,5 +1,6 @@
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 
 
 local UPDATE_NAME: string = "TimerUpdate"
@@ -20,7 +21,8 @@ function Timer.start(startTime: number, duration: number): ()
     local timer = boardFrame:WaitForChild("Timer")
     local bar = timer:WaitForChild("Bar") :: GuiObject
 
-    local elapsed = tick() - startTime
+    local currentTime = Workspace:GetServerTimeNow()
+    local elapsed = currentTime - startTime
     
     RunService:UnbindFromRenderStep(UPDATE_NAME)
     RunService:BindToRenderStep(UPDATE_NAME, RENDER_PRIORITY, function(delta: number)
