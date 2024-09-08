@@ -129,14 +129,12 @@ end
 
 
 function Reserve.removePieceObject(objectInfo: PieceObjectInfo): ()
-    for index, otherObjectInfo in reserved do
-        if objectInfo == otherObjectInfo then
-            objectInfo.object:Destroy()
+    local otherObjectInfo, index = Reserve.findPieceByType(objectInfo.pieceData.type)
 
-            table.remove(reserved, index)
+    if otherObjectInfo then
+        objectInfo.object:Destroy()
 
-            break
-        end
+        table.remove(reserved, index)
     end
 end
 
@@ -147,6 +145,17 @@ function Reserve.removePieceObjects(): ()
     end
 
     table.clear(reserved)
+end
+
+
+function Reserve.findPieceByType(pieceType: PieceType): (PieceObjectInfo?, number?)
+    for index, objectInfo in reserved do
+        if objectInfo.pieceData.type == pieceType then
+            return objectInfo, index
+        end
+    end
+
+    return
 end
 
 

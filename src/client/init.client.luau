@@ -29,6 +29,7 @@ end
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
 remotes.Spectate.Broadcast.OnClientEvent:Connect(Spectate.moveMouse)
+remotes.Spectate.Simulate.OnClientEvent:Connect(Spectate.simulate)
 
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)

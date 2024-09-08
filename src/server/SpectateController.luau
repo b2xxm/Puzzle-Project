@@ -13,6 +13,7 @@ local Submissions = require(ServerScriptService.Server.Game.Submissions)
 
 type Board = Types.Board
 type ReservedPieces = Types.ReservedPieces
+type SimulationOptions = Types.SimulationOptions
 
 
 local subscriptions: { [Player]: { Player } } = {}
@@ -119,6 +120,15 @@ function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector
 
     for _, subscriber in subscribers do
         remotes.Spectate.Broadcast:FireClient(subscriber, mousePosition)
+    end
+end
+
+
+function SpectateController.simulate(broadcaster: Player, option: SimulationOptions, ...: any)
+    local subscribers = subscriptions[broadcaster]
+
+    for _, subscriber in subscribers do
+        remotes.Spectate.Simulate:FireClient(subscriber, option, ...)
     end
 end
 

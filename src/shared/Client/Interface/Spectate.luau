@@ -19,10 +19,13 @@ local InterfaceUtils = require(client.Interface.Utils)
 type Board = Types.Board
 type PieceObjectInfo = Types.PieceObjectInfo
 type ReservedPieces = Types.ReservedPieces
+type SimulationOptions = Types.SimulationOptions
+type PieceType = Types.PieceType
+type PieceData = Types.PieceData
 
 
-local SPECTATE_ACTION_NAME = "Spectate"
-local SPECTATE_ACTION_INPUTS = {
+local SPECTATE_ACTION_NAME: string = "Spectate"
+local SPECTATE_ACTION_INPUTS: { Enum.UserInputType } = {
     Enum.UserInputType.MouseButton1,
     Enum.UserInputType.MouseMovement
 }
@@ -31,9 +34,11 @@ local SPECTATE_ACTION_INPUTS = {
 local player: Player = Players.LocalPlayer
 local currentHover: GuiObject? = nil
 local previousHover: GuiObject? = nil
-local selected: GuiObject? = nil
+local spectating: GuiObject? = nil
 local playerList: GuiObject = nil
 local cursor: GuiObject = nil
+local selectedPiece: PieceObjectInfo? = nil
+local optionToFunctionMap: { [SimulationOptions]: (...any) -> () } = nil
 
 
 local Spectate = {}
@@ -46,6 +51,14 @@ local function init(): ()
 
     cursor = gameUi:WaitForChild("Cursor") :: GuiObject
     playerList = gameUi:WaitForChild("Players") :: Frame
+
+    optionToFunctionMap = {
+        Select = Spectate.selectPiece,
+        Unselect = Spectate.unselectPiece,
+        Replace = Spectate.replacePiece,
+        Place = Spectate.placePiece,
+        Unplace = Spectate.unplacePiece
+    }
 end
 
 
@@ -146,7 +159,7 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
         subscribe(true, newSelectRow.Name, nil)
     end
 
-    selected = newSelection
+    spectating = newSelection
 end
 
 
@@ -158,7 +171,7 @@ local function unselect(currentSelection: GuiObject): ()
     local indicator = currentSelection:WaitForChild("Indicator") :: GuiObject
     indicator.Visible = false
 
-    selected = nil
+    spectating = nil
 end
 
 
@@ -169,10 +182,10 @@ local function action(_: string, state: Enum.UserInputState, input: InputObject)
                 return Enum.ContextActionResult.Pass
             end
             
-            if selected ~= currentHover then
-                selectNew(currentHover, selected)
+            if spectating ~= currentHover then
+                selectNew(currentHover, spectating)
             else
-                unselect(selected :: GuiObject)
+                unselect(spectating :: GuiObject)
             end
         end
 
@@ -209,8 +222,8 @@ function Spectate.disable(): ()
         currentHover = nil
     end
 
-    if selected then
-        unselect(selected)
+    if spectating then
+        unselect(spectating)
     end
 end
 
@@ -218,6 +231,79 @@ end
 function Spectate.moveMouse(mousePosition: Vector3): ()
     local x, y = InterfaceUtils.toScalePosition(mousePosition.X, mousePosition.Y)
     cursor.Position = UDim2.fromScale(x, y)
+
+    if selectedPiece then
+        selectedPiece.object.Position = cursor.Position
+    end
+end
+
+
+function Spectate.simulate(option: SimulationOptions, ...: any): ()
+    local mappedFunction = optionToFunctionMap[option]
+
+    if mappedFunction then
+        mappedFunction(...)
+    end
+end
+
+
+function Spectate.selectPiece(pieceType: PieceType): ()
+    local piece = (Reserve.findPieceByType(pieceType))
+
+    if piece then
+        selectedPiece = piece
+        piece.object.Position = cursor.Position
+    end
+end
+
+
+function Spectate.unselectPiece(): ()
+    selectedPiece = nil
+end
+
+
+function Spectate.replacePiece(pieceData: PieceData): ()
+    local objectInfo = (Reserve.findPieceByType(pieceData.type))
+
+    if objectInfo then
+        Reserve.removePieceObject(objectInfo)
+    end
+
+    local piece = Reserve.generatePiece(pieceData.shape, pieceData.type)
+    piece.object.Position = cursor.Position
+
+    selectedPiece = piece
+end
+
+
+function Spectate.placePiece(addresses: { string }, pieceType: PieceType): ()
+    local success = BoardInterface.placePiece(addresses, pieceType)
+
+    selectedPiece = nil
+
+    if not success then
+        return
+    end
+
+    local objectInfo = Reserve.findPieceByType(pieceType)
+
+    if objectInfo then
+        Reserve.removePieceObject(objectInfo)
+
+        if #Reserve.reserved == 0 then
+            cursor.Visible = false
+        end
+    end
+end
+
+
+function Spectate.unplacePiece(addresses: { string }, pieceData: PieceData ): ()
+    BoardInterface.removePiece(addresses)
+    
+    local piece = Reserve.generatePiece(pieceData.shape, pieceData.type)
+    piece.object.Position = cursor.Position
+
+    selectedPiece = piece
 end
 
 

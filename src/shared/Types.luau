@@ -6,6 +6,7 @@ export type PieceShape = { number }
 export type PieceData = { shape: PieceShape, metadata: { height: number, width: number }, type: PieceType }
 export type PieceObjectInfo = { pieceData: PieceData, object: GuiObject }
 export type ReservedPieces = { { pieceData: PieceData, position: UDim2 } }
+export type SimulationOptions = "Select" | "Unselect" | "Replace" | "Place" | "Unplace"
 
 
 return nil

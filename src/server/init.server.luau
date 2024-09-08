@@ -22,5 +22,6 @@ Players.PlayerRemoving:Connect(Game.playerRemoving)
 
 remotes.SubmitSolution.OnServerEvent:Connect(Game.submit)
 remotes.Spectate.Broadcast.OnServerEvent:Connect(SpectateController.broadcast)
+remotes.Spectate.Simulate.OnServerEvent:Connect(SpectateController.simulate)
 
 remotes.Spectate.Subscribe.OnServerInvoke = SpectateController.subscribe

@@ -99,6 +99,10 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     selected = objectInfo
 
     Selector.update(selected, Vector3.new(x, y, 0))
+
+    if shouldBroadcast then
+        remotes.Spectate.Simulate:FireServer("Replace", objectInfo.pieceData)
+    end
 end
 
 
@@ -206,17 +210,18 @@ local function begin(input: InputObject): ()
     local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
 
     local clickedAddress = nil
+    local newSelected = nil
 
     for _, object in guiObjects do
         for _, reserveInfo in Reserve.reserved do
             if object == reserveInfo.object then
-                selected = reserveInfo
+                newSelected = reserveInfo
                 
                 break
             end
         end
 
-        if selected then
+        if newSelected then
             break
         end
         
@@ -225,7 +230,7 @@ local function begin(input: InputObject): ()
         end
     end
 
-    if not selected then
+    if not newSelected then
         if not clickedAddress then
             return
         end
@@ -247,12 +252,18 @@ local function begin(input: InputObject): ()
         end
         
         local pieceData = PieceService.getPieceDataByAddress(occupyingAddresses, pieceType)
-        selected = Reserve.generatePiece(pieceData.shape, pieceType)
+        newSelected = Reserve.generatePiece(pieceData.shape, pieceType)
 
         BoardInterface.removePiece(occupyingAddresses)
+
+        if shouldBroadcast then
+            remotes.Spectate.Simulate:FireServer("Unplace", occupyingAddresses, pieceData)
+        end
     end
 
-    Selector.update(selected :: PieceObjectInfo, input.Position)
+    selected = newSelected
+
+    Selector.update(newSelected, input.Position)
 
     ContextActionService:BindAction(
         PIECE_ACTION_NAME,
@@ -263,6 +274,10 @@ local function begin(input: InputObject): ()
         PIECE_ACTION_INPUTS.rotate.clockwise,
         PIECE_ACTION_INPUTS.rotate.counterclockwise
     )
+
+    if shouldBroadcast then
+        remotes.Spectate.Simulate:FireServer("Select", newSelected.pieceData.type)
+    end
 end
 
 
@@ -285,6 +300,10 @@ local function release(): ()
 
                 Selector.disable()
             end
+
+            if shouldBroadcast then
+                remotes.Spectate.Simulate:FireServer("Place", currentHoveringAddress, selected.pieceData.type)
+            end
         end
 
         currentHoveringAddress = nil
@@ -295,6 +314,10 @@ local function release(): ()
     
     selected = nil
     ContextActionService:UnbindAction(PIECE_ACTION_NAME)
+
+    if shouldBroadcast then
+        remotes.Spectate.Simulate:FireServer("Unselect")
+    end
 end
 
 
