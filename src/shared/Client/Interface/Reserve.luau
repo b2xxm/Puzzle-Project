@@ -21,6 +21,10 @@ type PieceData = Types.PieceData
 type PieceObjectInfo = Types.PieceObjectInfo
 
 
+local MAX_SCALE_VARIATION = 0.8
+local OFFSET = (1 - MAX_SCALE_VARIATION) / 2
+
+
 local player: Player = Players.LocalPlayer
 local camera: Camera = Workspace.CurrentCamera
 local reserved: { PieceObjectInfo } = {}
@@ -31,14 +35,13 @@ Reserve.reserved = reserved
 
 
 local function randomPosition(): (number, number)
-    -- get rid of magic numbers
     local playerGui = player.PlayerGui
     local gameUi = playerGui:WaitForChild("GameUi")
     local boardFrame = gameUi:WaitForChild("Board") :: Frame
 
     while true do
-        local xScale = (math.random() * 0.8) + 0.1
-        local yScale = (math.random() * 0.8) + 0.1
+        local xScale = (math.random() * MAX_SCALE_VARIATION) + OFFSET
+        local yScale = (math.random() * MAX_SCALE_VARIATION) + OFFSET
 
         local xOffset, yOffset = InterfaceUtils.toOffsetPosition(xScale, yScale)
         
