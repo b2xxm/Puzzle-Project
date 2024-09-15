@@ -41,7 +41,6 @@ remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
 Input.register(
     "SinkMovement",
     function()
-        print("attempt move")
         return Enum.ContextActionResult.Sink
     end,
     Enum.ContextActionPriority.High.Value,
