@@ -301,6 +301,7 @@ Input.register(
     "Spectate",
     action,
     Enum.ContextActionPriority.Medium.Value,
+    false,
     Enum.UserInputType.MouseButton1,
     Enum.UserInputType.MouseMovement
 )

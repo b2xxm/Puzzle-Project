@@ -9,7 +9,8 @@ local Types = require(shared.Types)
 
 
 type InputMethod = Types.InputMethod
-type RegisterDetails = { callback: (...any) -> Enum.ContextActionResult, priority: number, inputs: { InputMethod } }
+type ActionCallback = (name: string, state: Enum.UserInputState, input: InputObject) -> Enum.ContextActionResult
+type RegisterDetails = { callback: ActionCallback, priority: number, inputs: { InputMethod } }
 
 
 local registered: { [string]: RegisterDetails } = {}
@@ -18,8 +19,7 @@ local registered: { [string]: RegisterDetails } = {}
 local Input = {}
 
 
-function Input.register(name: string, callback: (...any) -> Enum.ContextActionResult, priority: number,  ...: InputMethod): ()
-
+function Input.register(name: string, callback: ActionCallback, priority: number, preEnabled: boolean, ...: InputMethod): ()
     if registered[name] then
         warn(`[{name}] is already used to register a different action`)
 
@@ -31,6 +31,10 @@ function Input.register(name: string, callback: (...any) -> Enum.ContextActionRe
         priority = priority,
         inputs = { ... }
     }
+
+    if preEnabled then
+        Input.enable(name)
+    end
 end
 
 

@@ -14,6 +14,7 @@ local Selector = require(client.Interface.Selector)
 local Reserve = require(client.Interface.Reserve)
 local Timer = require(client.Interface.Board.Timer)
 local Spectate = require(client.Interface.Spectate)
+local Input = require(client.Input)
 
 
 local function newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
@@ -36,3 +37,14 @@ Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
+
+Input.register(
+    "SinkMovement",
+    function()
+        print("attempt move")
+        return Enum.ContextActionResult.Sink
+    end,
+    Enum.ContextActionPriority.High.Value,
+    true,
+    table.unpack(Enum.PlayerActions:GetEnumItems())
+)

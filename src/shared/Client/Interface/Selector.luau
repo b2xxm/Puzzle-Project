@@ -436,6 +436,7 @@ Input.register(
     "PieceSelector",
     action,
     Enum.ContextActionPriority.High.Value,
+    false,
     Enum.UserInputType.MouseButton1,
     Enum.UserInputType.MouseMovement
 )
@@ -443,7 +444,8 @@ Input.register(
 Input.register(
     "PieceAction",
     pieceAction,
-    Enum.ContextActionPriority.Medium.Value,
+    Enum.ContextActionPriority.High.Value + 1,
+    false,
     PIECE_ACTION_INPUTS.flip.horizontal,
     PIECE_ACTION_INPUTS.flip.vertical,
     PIECE_ACTION_INPUTS.rotate.clockwise,

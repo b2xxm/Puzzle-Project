@@ -130,10 +130,9 @@ Input.register(
     "TogglePlayerList",
     PlayerList.toggleVisibility,
     Enum.ContextActionPriority.Medium.Value,
+    true,
     Enum.KeyCode.Tab
 )
-
-Input.enable("TogglePlayerList")
 
 
 return PlayerList
