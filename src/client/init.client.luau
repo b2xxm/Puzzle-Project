@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
 
 
 local remotes = ReplicatedStorage.Remotes
@@ -26,6 +28,17 @@ local function newGame(blockerAddresses: { string }, startTime: number, duration
 end
 
 
+local function init(): ()
+    GuiService.TouchControlsEnabled = false
+
+    if UserInputService.KeyboardEnabled then
+        -- keyboard
+    else
+        -- mobile/ controller
+    end
+end
+
+
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
 remotes.Spectate.Broadcast.OnClientEvent:Connect(Spectate.moveMouse)
@@ -47,3 +60,5 @@ Input.register(
     true,
     table.unpack(Enum.PlayerActions:GetEnumItems())
 )
+
+init()

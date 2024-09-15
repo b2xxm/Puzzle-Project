@@ -43,6 +43,8 @@ function Input.enable(name: string): ()
 
     if not details then
         warn(`[{name}] is not registered`)
+
+        return
     end
 
     ContextActionService:BindActionAtPriority(name, details.callback, false, details.priority, table.unpack(details.inputs))
@@ -54,6 +56,8 @@ function Input.disable(name: string): ()
 
     if not details then
         warn(`[{name}] is not registered`)
+
+        return
     end
 
     ContextActionService:UnbindAction(name)
