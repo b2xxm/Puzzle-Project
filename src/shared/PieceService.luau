@@ -13,7 +13,6 @@ type Board = Types.Board
 type PieceType = Types.PieceType
 type PieceShape = Types.PieceShape
 type PieceData = Types.PieceData
-
 type PieceVariations = { [PieceType]: { PieceShape } }
 type ShapeBounds = { top: number, bottom: number, left: number, right: number }
 
