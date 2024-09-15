@@ -10,6 +10,7 @@ local client = shared.Client
 local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(script.Config)
 local Spectate = require(client.Interface.Spectate)
+local Input = require(client.Input)
 
 
 local player: Player = Players.LocalPlayer
@@ -18,8 +19,6 @@ local visibilityStatus: boolean = true
 
 
 local PlayerList = {}
-PlayerList.actionName = "ToggleList"
-PlayerList.input = Enum.KeyCode.Tab
 
 
 local function initialise(): ()
@@ -82,9 +81,9 @@ function PlayerList.reset(): ()
 end
 
 
-function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState, _: InputObject): ()
+function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState, _: InputObject): Enum.ContextActionResult
     if inputState ~= Enum.UserInputState.Begin then
-        return
+        return Enum.ContextActionResult.Pass
     end
 
     local playerGui = player.PlayerGui
@@ -120,10 +119,21 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
 
         tween:Play()
     end
+
+    return Enum.ContextActionResult.Pass
 end
 
 
 initialise()
+
+Input.register(
+    "TogglePlayerList",
+    PlayerList.toggleVisibility,
+    Enum.ContextActionPriority.Medium.Value,
+    Enum.KeyCode.Tab
+)
+
+Input.enable("TogglePlayerList")
 
 
 return PlayerList

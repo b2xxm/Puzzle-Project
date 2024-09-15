@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
 
 
@@ -18,6 +17,7 @@ local BoardInterface = require(client.Interface.Board)
 local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local InterfaceUtils = require(client.Interface.Utils)
 local Spectate = require(client.Interface.Spectate)
+local Input = require(client.Input)
 
 
 type Board = Types.Board
@@ -29,14 +29,6 @@ type PieceActionInputs = {
     rotate: { counterclockwise: Enum.KeyCode, clockwise: Enum.KeyCode },
 }
 
-
-local SELECTOR_ACTION_NAME: string = "PieceSelection"
-local PIECE_ACTION_NAME: string = "PieceAction"
-
-local SELECTOR_ACTION_INPUTS: { Enum.UserInputType } = {
-    Enum.UserInputType.MouseButton1,
-    Enum.UserInputType.MouseMovement
-}
 
 local PIECE_ACTION_INPUTS: PieceActionInputs = {
     flip = {
@@ -69,9 +61,9 @@ local function init(): ()
 end
 
 
-local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): ()
+local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
     if state ~= Enum.UserInputState.Begin or not selected then
-        return
+        return Enum.ContextActionResult.Pass
     end
 
     if input.KeyCode == PIECE_ACTION_INPUTS.flip.horizontal then
@@ -103,6 +95,8 @@ local function pieceAction(_: string, state: Enum.UserInputState, input: InputOb
     if shouldBroadcast then
         remotes.Spectate.Simulate:FireServer("Replace", objectInfo.pieceData)
     end
+
+    return Enum.ContextActionResult.Pass
 end
 
 
@@ -265,15 +259,7 @@ local function begin(input: InputObject): ()
 
     Selector.update(newSelected, input.Position)
 
-    ContextActionService:BindAction(
-        PIECE_ACTION_NAME,
-        pieceAction,
-        false,
-        PIECE_ACTION_INPUTS.flip.horizontal,
-        PIECE_ACTION_INPUTS.flip.vertical,
-        PIECE_ACTION_INPUTS.rotate.clockwise,
-        PIECE_ACTION_INPUTS.rotate.counterclockwise
-    )
+    Input.enable("PieceAction")
 
     if shouldBroadcast then
         remotes.Spectate.Simulate:FireServer("Select", newSelected.pieceData.type)
@@ -313,7 +299,8 @@ local function release(): ()
     setPieceVisibility(selected.object, false)
     
     selected = nil
-    ContextActionService:UnbindAction(PIECE_ACTION_NAME)
+
+    Input.disable("PieceAction")
 
     if shouldBroadcast then
         remotes.Spectate.Simulate:FireServer("Unselect")
@@ -403,22 +390,17 @@ end
 
 
 function Selector.enable(): ()
-    ContextActionService:BindAction(
-        SELECTOR_ACTION_NAME,
-        action,
-        false,
-        table.unpack(SELECTOR_ACTION_INPUTS)
-    )
-
     Spectate.canEnable = false
+    
+    Input.enable("PieceSelector")
     Spectate.disable()
 end
 
 
 function Selector.disable(): ()
-    ContextActionService:UnbindAction(SELECTOR_ACTION_NAME)
-
     Spectate.canEnable = true
+
+    Input.disable("PieceSelector")
     Spectate.enable()
 end
 
@@ -449,6 +431,24 @@ end
 
 
 init()
+
+Input.register(
+    "PieceSelector",
+    action,
+    Enum.ContextActionPriority.High.Value,
+    Enum.UserInputType.MouseButton1,
+    Enum.UserInputType.MouseMovement
+)
+
+Input.register(
+    "PieceAction",
+    pieceAction,
+    Enum.ContextActionPriority.Medium.Value,
+    PIECE_ACTION_INPUTS.flip.horizontal,
+    PIECE_ACTION_INPUTS.flip.vertical,
+    PIECE_ACTION_INPUTS.rotate.clockwise,
+    PIECE_ACTION_INPUTS.rotate.counterclockwise
+)
 
 
 return Selector

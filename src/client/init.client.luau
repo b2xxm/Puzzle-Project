@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ContextActionService = game:GetService("ContextActionService")
 local StarterGui = game:GetService("StarterGui")
 
 
@@ -37,11 +36,3 @@ Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
-
-
-ContextActionService:BindAction(
-    PlayerList.actionName,
-    PlayerList.toggleVisibility,
-    false,
-    PlayerList.input
-)

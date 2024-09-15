@@ -1,4 +1,5 @@
 export type LookUp<T> = { [T]: boolean }
+export type InputMethod = Enum.KeyCode | Enum.UserInputType
 
 export type Board = { [string]: PieceType }
 export type PieceType = "red" | "orange" | "yellow" | "green" | "lblue" | "dblue" | "purple" | "brown" | "grey" | "blocker" | "none"

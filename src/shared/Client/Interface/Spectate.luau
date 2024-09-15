@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 
 
@@ -14,6 +13,7 @@ local PlayerListConfig = require(client.Interface.PlayerList.Config)
 local BoardInterface = require(client.Interface.Board)
 local Reserve = require(client.Interface.Reserve)
 local InterfaceUtils = require(client.Interface.Utils)
+local Input = require(client.Input)
 
 
 type Board = Types.Board
@@ -22,13 +22,6 @@ type ReservedPieces = Types.ReservedPieces
 type SimulationOptions = Types.SimulationOptions
 type PieceType = Types.PieceType
 type PieceData = Types.PieceData
-
-
-local SPECTATE_ACTION_NAME: string = "Spectate"
-local SPECTATE_ACTION_INPUTS: { Enum.UserInputType } = {
-    Enum.UserInputType.MouseButton1,
-    Enum.UserInputType.MouseMovement
-}
 
 
 local player: Player = Players.LocalPlayer
@@ -204,17 +197,12 @@ function Spectate.enable(): ()
         return
     end
 
-    ContextActionService:BindAction(
-        SPECTATE_ACTION_NAME,
-        action,
-        false,
-        table.unpack(SPECTATE_ACTION_INPUTS)
-    )
+    Input.enable("Spectate")
 end
 
 
 function Spectate.disable(): ()
-    ContextActionService:UnbindAction(SPECTATE_ACTION_NAME)
+    Input.disable("Spectate")
 
     if currentHover then
         hover(currentHover, false)
@@ -308,6 +296,14 @@ end
 
 
 init()
+
+Input.register(
+    "Spectate",
+    action,
+    Enum.ContextActionPriority.Medium.Value,
+    Enum.UserInputType.MouseButton1,
+    Enum.UserInputType.MouseMovement
+)
 
 
 return Spectate
