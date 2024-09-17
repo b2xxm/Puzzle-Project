@@ -38,6 +38,19 @@ function Input.register(name: string, callback: ActionCallback, priority: number
 end
 
 
+function Input.unregister(name: string): ()
+    if not registered[name] then
+        warn(`[{name}] does in exist in registry`)
+
+        return
+    end
+
+    Input.disable(name)
+    
+    registered[name] = nil
+end
+
+
 function Input.enable(name: string): ()
     local details = registered[name]
 
