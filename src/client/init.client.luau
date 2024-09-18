@@ -10,6 +10,7 @@ local shared = ReplicatedStorage.Shared
 local client = shared.Client
 
 
+local Cursor = require(client.Cursor)
 local Board = require(client.Interface.Board)
 local PlayerList = require(client.Interface.PlayerList)
 local Selector = require(client.Interface.Selector)
@@ -30,11 +31,12 @@ end
 
 local function init(): ()
     GuiService.TouchControlsEnabled = false
+    UserInputService.MouseIconEnabled = false
 
-    if UserInputService.KeyboardEnabled then
-        -- keyboard
+    if not UserInputService.KeyboardEnabled then
+        Cursor.enable("Mobile")
     else
-        -- mobile/ controller
+        Cursor.enable("Desktop")
     end
 end
 
@@ -51,6 +53,8 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
 
+init()
+
 Input.register(
     "SinkMovement",
     function()
@@ -60,5 +64,3 @@ Input.register(
     true,
     table.unpack(Enum.PlayerActions:GetEnumItems())
 )
-
-init()
