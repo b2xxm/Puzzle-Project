@@ -86,6 +86,8 @@ function SpectateController.stopBroadcast(broadcaster: Player): ()
     local subscribers = subscriptions[broadcaster]
 
     if subscribers then
+        subscriptions[broadcaster] = nil
+
         while true do
             local subscriber = subscribers[1]
 
@@ -95,8 +97,6 @@ function SpectateController.stopBroadcast(broadcaster: Player): ()
                 break
             end
         end
-
-        subscriptions[broadcaster] = nil
     end
 end
 
@@ -118,6 +118,10 @@ end
 function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector3): ()
     local subscribers = subscriptions[broadcaster]
 
+    if not subscribers then
+        SpectateController.stopBroadcast(broadcaster)
+    end
+
     for _, subscriber in subscribers do
         remotes.Spectate.Broadcast:FireClient(subscriber, mousePosition)
     end
@@ -126,6 +130,10 @@ end
 
 function SpectateController.simulate(broadcaster: Player, option: SimulationOptions, ...: any)
     local subscribers = subscriptions[broadcaster]
+
+    if not subscribers then
+        SpectateController.stopBroadcast(broadcaster)
+    end
 
     for _, subscriber in subscribers do
         remotes.Spectate.Simulate:FireClient(subscriber, option, ...)

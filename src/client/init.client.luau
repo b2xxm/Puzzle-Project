@@ -51,7 +51,9 @@ Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
+
 remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
+
 
 init()
 
