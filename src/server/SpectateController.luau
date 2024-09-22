@@ -119,7 +119,7 @@ function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector
     local subscribers = subscriptions[broadcaster]
 
     if not subscribers then
-        SpectateController.stopBroadcast(broadcaster)
+        remotes.Spectate.Request:InvokeClient(broadcaster, false)
     end
 
     for _, subscriber in subscribers do
@@ -132,7 +132,7 @@ function SpectateController.simulate(broadcaster: Player, option: SimulationOpti
     local subscribers = subscriptions[broadcaster]
 
     if not subscribers then
-        SpectateController.stopBroadcast(broadcaster)
+        remotes.Spectate.Request:InvokeClient(broadcaster, false)
     end
 
     for _, subscriber in subscribers do
