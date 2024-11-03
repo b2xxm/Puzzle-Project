@@ -308,7 +308,7 @@ local function release(): ()
 end
 
 
-local function action(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
     if state == Enum.UserInputState.Cancel then
         return Enum.ContextActionResult.Pass
     end
@@ -432,14 +432,6 @@ end
 
 init()
 
-Input.register(
-    "PieceSelector",
-    action,
-    Enum.ContextActionPriority.High.Value,
-    false,
-    Enum.UserInputType.MouseButton1,
-    Enum.UserInputType.MouseMovement
-)
 
 Input.register(
     "PieceAction",

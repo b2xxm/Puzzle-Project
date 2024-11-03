@@ -20,6 +20,9 @@ local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
 
 
+local player: Player = Players.LocalPlayer
+
+
 local function newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
     Board.newGame(blockerAddresses)
     Reserve.scatter()
@@ -30,15 +33,38 @@ end
 
 
 local function init(): ()
+    local playerGui = player.PlayerGui
+    local gameUi = playerGui:WaitForChild("GameUi")
+    local actions = gameUi:WaitForChild("Actions")
+
+    local desktopActions = actions:WaitForChild("Desktop") :: Frame
+    local mobileActions = actions:WaitForChild("Mobile") :: Frame
+
     GuiService.TouchControlsEnabled = false
     UserInputService.MouseIconEnabled = false
 
     if not UserInputService.KeyboardEnabled then
         Cursor.enable("Mobile")
+
+        desktopActions.Visible = false
     else
+        Input.register(
+            "PieceSelector",
+            Selector.action,
+            Enum.ContextActionPriority.High.Value,
+            false,
+            Enum.UserInputType.MouseButton1,
+            Enum.UserInputType.MouseMovement
+        )
+
         Cursor.enable("Desktop")
+
+        mobileActions.Visible = false
     end
 end
+
+
+init()
 
 
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
@@ -53,9 +79,6 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 
 remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
-
-
-init()
 
 Input.register(
     "SinkMovement",

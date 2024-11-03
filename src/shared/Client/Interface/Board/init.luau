@@ -52,7 +52,7 @@ local function createCell(x: number, y: number): Frame?
 end
 
 
-local function initialise(): ()
+local function init(): ()
     local playerGui = player.PlayerGui
     
     local gameUi = playerGui:WaitForChild("GameUi")
@@ -159,7 +159,7 @@ function Board.loadBoard(boardToLoad: Board): ()
 end
 
 
-initialise()
+init()
 
 
 return Board

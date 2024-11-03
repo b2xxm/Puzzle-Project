@@ -297,6 +297,7 @@ end
 
 init()
 
+
 Input.register(
     "Spectate",
     action,

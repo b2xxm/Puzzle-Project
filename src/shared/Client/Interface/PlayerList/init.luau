@@ -21,7 +21,7 @@ local visibilityStatus: boolean = true
 local PlayerList = {}
 
 
-local function initialise(): ()
+local function init(): ()
     for _, otherPlayer in Players:GetChildren() do
         PlayerList.addPlayer(otherPlayer)
     end
@@ -124,7 +124,8 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
 end
 
 
-initialise()
+init()
+
 
 Input.register(
     "TogglePlayerList",
