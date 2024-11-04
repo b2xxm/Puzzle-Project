@@ -110,9 +110,4 @@ function Actions.setup(newType: DeviceType): ()
 end
 
 
-function Actions.enable(): ()
-
-end
-
-
 return Actions
