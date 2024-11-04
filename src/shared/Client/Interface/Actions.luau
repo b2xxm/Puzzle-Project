@@ -54,7 +54,7 @@ local function desktop(): ()
             return Enum.ContextActionResult.Pass
         end,
         Enum.ContextActionPriority.High.Value + 1,
-        false,
+        true,
         Keybinding.PieceAction.FlipHorizontal,
         Keybinding.PieceAction.FlipVertical,
         Keybinding.PieceAction.RotateClockwise,
@@ -111,7 +111,7 @@ end
 
 
 function Actions.enable(): ()
-    
+
 end
 
 
