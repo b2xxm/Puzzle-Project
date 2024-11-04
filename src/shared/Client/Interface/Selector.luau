@@ -18,28 +18,14 @@ local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local InterfaceUtils = require(client.Interface.Utils)
 local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
+local Keybinding = require(client.Keybinding)
 
 
 type Board = Types.Board
 type PieceType = Types.PieceType
 type PieceObjectInfo = Types.PieceObjectInfo
 type ReservedPieces = Types.ReservedPieces
-type PieceActionInputs = {
-    flip: { horizontal: Enum.KeyCode, vertical: Enum.KeyCode },
-    rotate: { counterclockwise: Enum.KeyCode, clockwise: Enum.KeyCode },
-}
-
-
-local PIECE_ACTION_INPUTS: PieceActionInputs = {
-    flip = {
-        horizontal = Enum.KeyCode.R,
-        vertical = Enum.KeyCode.T
-    },
-    rotate = {
-        clockwise = Enum.KeyCode.E,
-        counterclockwise = Enum.KeyCode.Q
-    }
-}
+type DeviceType = Types.DeviceType
 
 
 local player: Player = Players.LocalPlayer
@@ -48,6 +34,7 @@ local currentHoveringAddress: string? = nil
 local currentHoveringAddresses: { string } = {}
 local shouldBroadcast: boolean = false
 local boardFrame: GuiObject = nil
+local deviceType: DeviceType = "Desktop"
 
 
 local Selector = {}
@@ -58,45 +45,6 @@ local function init(): ()
     local gameUi = playerGui:WaitForChild("GameUi")
 
     boardFrame = gameUi:WaitForChild("Board") :: GuiObject
-end
-
-
-local function pieceAction(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
-    if state ~= Enum.UserInputState.Begin or not selected then
-        return Enum.ContextActionResult.Pass
-    end
-
-    if input.KeyCode == PIECE_ACTION_INPUTS.flip.horizontal then
-        PieceService.flipHorizontal(selected.pieceData)
-
-    elseif input.KeyCode == PIECE_ACTION_INPUTS.flip.vertical then
-        PieceService.flipVertical(selected.pieceData)
-
-    elseif input.KeyCode == PIECE_ACTION_INPUTS.rotate.clockwise then
-        PieceService.rotate(selected.pieceData, true)
-
-    elseif input.KeyCode == PIECE_ACTION_INPUTS.rotate.counterclockwise then
-        PieceService.rotate(selected.pieceData, false)
-    end
-
-    currentHoveringAddress = nil
-    
-    local objectInfo = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
-
-    local x = selected.object.AbsolutePosition.X + selected.object.AbsoluteSize.X / 2
-    local y = selected.object.AbsolutePosition.Y + selected.object.AbsoluteSize.Y / 2
-
-    Reserve.removePieceObject(selected)
-
-    selected = objectInfo
-
-    Selector.update(selected, Vector3.new(x, y, 0))
-
-    if shouldBroadcast then
-        remotes.Spectate.Simulate:FireServer("Replace", objectInfo.pieceData)
-    end
-
-    return Enum.ContextActionResult.Pass
 end
 
 
@@ -197,10 +145,10 @@ local function setPieceVisibility(pieceObject: GuiObject, translucent: boolean):
 end
 
 
-local function begin(input: InputObject): ()
+local function begin(inputPosition: Vector3): ()
     local playerGui = player.PlayerGui
             
-    local x, y = input.Position.X, input.Position.Y
+    local x, y = inputPosition.X, inputPosition.Y
     local guiObjects = playerGui:GetGuiObjectsAtPosition(x, y)
 
     local clickedAddress = nil
@@ -257,9 +205,7 @@ local function begin(input: InputObject): ()
 
     selected = newSelected
 
-    Selector.update(newSelected, input.Position)
-
-    Input.enable("PieceAction")
+    Selector.update(newSelected, inputPosition)
 
     if shouldBroadcast then
         remotes.Spectate.Simulate:FireServer("Select", newSelected.pieceData.type)
@@ -300,15 +246,13 @@ local function release(): ()
     
     selected = nil
 
-    Input.disable("PieceAction")
-
     if shouldBroadcast then
         remotes.Spectate.Simulate:FireServer("Unselect")
     end
 end
 
 
-function Selector.action(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+function Selector.action(state: Enum.UserInputState, inputType: Enum.UserInputType, position: Vector3): Enum.ContextActionResult
     if state == Enum.UserInputState.Cancel then
         return Enum.ContextActionResult.Pass
     end
@@ -317,23 +261,23 @@ function Selector.action(_: string, state: Enum.UserInputState, input: InputObje
         selected = nil
     end
 
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if inputType == Enum.UserInputType.MouseButton1 then
         if state == Enum.UserInputState.Begin then
-            begin(input)
+            begin(position)
 
         elseif state == Enum.UserInputState.End then
             release()
         end
     else
         if shouldBroadcast then
-            remotes.Spectate.Broadcast:FireServer(input.Position)
+            remotes.Spectate.Broadcast:FireServer(position)
         end
 
         if state ~= Enum.UserInputState.Change or not selected then
             return Enum.ContextActionResult.Pass
         end
         
-        Selector.update(selected, input.Position)
+        Selector.update(selected, position)
     end
 
     return Enum.ContextActionResult.Pass
@@ -390,17 +334,23 @@ end
 
 
 function Selector.enable(): ()
-    Spectate.canEnable = false
-    
-    Input.enable("PieceSelector")
+    if deviceType == "Desktop" then
+        Input.enable("PieceSelector")
+        
+        -- make enable mobile selector
+    end
+
     Spectate.disable()
 end
 
 
 function Selector.disable(): ()
-    Spectate.canEnable = true
+    if deviceType == "Desktop" then
+        Input.enable("PieceSelector")
+        
+        -- make disable mobile selector
+    end
 
-    Input.disable("PieceSelector")
     Spectate.enable()
 end
 
@@ -430,19 +380,54 @@ function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?
 end
 
 
+function Selector.pieceAction(state: Enum.UserInputState, keycode: Enum.KeyCode): ()
+    if state ~= Enum.UserInputState.Begin or not selected then
+        return
+    end
+
+    if keycode == Keybinding.PieceAction.FlipHorizontal then
+        PieceService.flipHorizontal(selected.pieceData)
+
+    elseif keycode == Keybinding.PieceAction.FlipVertical then
+        PieceService.flipVertical(selected.pieceData)
+
+    elseif keycode == Keybinding.PieceAction.RotateClockwise then
+        PieceService.rotate(selected.pieceData, true)
+
+    elseif keycode == Keybinding.PieceAction.RotateCounterClockwise then
+        PieceService.rotate(selected.pieceData, false)
+    end
+
+    currentHoveringAddress = nil
+    
+    local objectInfo = Reserve.generatePiece(selected.pieceData.shape, selected.pieceData.type)
+
+    local x = selected.object.AbsolutePosition.X + selected.object.AbsoluteSize.X / 2
+    local y = selected.object.AbsolutePosition.Y + selected.object.AbsoluteSize.Y / 2
+
+    Reserve.removePieceObject(selected)
+
+    selected = objectInfo
+
+    Selector.update(selected, Vector3.new(x, y, 0))
+
+    if shouldBroadcast then
+        remotes.Spectate.Simulate:FireServer("Replace", objectInfo.pieceData)
+    end
+end
+
+
+function Selector.setDeviceType(newType: DeviceType): ()
+    deviceType = newType
+end
+
+
+function Selector.getSelected(): PieceObjectInfo?
+    return selected
+end
+
+
 init()
-
-
-Input.register(
-    "PieceAction",
-    pieceAction,
-    Enum.ContextActionPriority.High.Value + 1,
-    false,
-    PIECE_ACTION_INPUTS.flip.horizontal,
-    PIECE_ACTION_INPUTS.flip.vertical,
-    PIECE_ACTION_INPUTS.rotate.clockwise,
-    PIECE_ACTION_INPUTS.rotate.counterclockwise
-)
 
 
 return Selector

@@ -18,9 +18,11 @@ local Reserve = require(client.Interface.Reserve)
 local Timer = require(client.Interface.Board.Timer)
 local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
+local Actions = require(client.Interface.Actions)
+local Types = require(shared.Types)
 
 
-local player: Player = Players.LocalPlayer
+type DeviceType = Types.DeviceType
 
 
 local function newGame(blockerAddresses: { string }, startTime: number, duration: number): ()
@@ -33,34 +35,14 @@ end
 
 
 local function init(): ()
-    local playerGui = player.PlayerGui
-    local gameUi = playerGui:WaitForChild("GameUi")
-    local actions = gameUi:WaitForChild("Actions")
-
-    local desktopActions = actions:WaitForChild("Desktop") :: Frame
-    local mobileActions = actions:WaitForChild("Mobile") :: Frame
-
     GuiService.TouchControlsEnabled = false
     UserInputService.MouseIconEnabled = false
 
-    if not UserInputService.KeyboardEnabled then
-        Cursor.enable("Mobile")
+    local deviceType: DeviceType = if not UserInputService.KeyboardEnabled then "Mobile" else "Desktop"
 
-        desktopActions.Visible = false
-    else
-        Input.register(
-            "PieceSelector",
-            Selector.action,
-            Enum.ContextActionPriority.High.Value,
-            false,
-            Enum.UserInputType.MouseButton1,
-            Enum.UserInputType.MouseMovement
-        )
-
-        Cursor.enable("Desktop")
-
-        mobileActions.Visible = false
-    end
+    Cursor.enable(deviceType)
+    Actions.setup(deviceType)
+    Selector.setDeviceType(deviceType)
 end
 
 

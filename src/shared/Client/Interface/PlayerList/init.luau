@@ -15,7 +15,7 @@ local Input = require(client.Input)
 
 local player: Player = Players.LocalPlayer
 local rows: { [Player]: GuiObject } = {}
-local visibilityStatus: boolean = true
+local visible: boolean = true
 
 
 local PlayerList = {}
@@ -91,13 +91,17 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
     local gameUi = playerGui:WaitForChild("GameUi")
     local playerList = gameUi:WaitForChild("Players") :: GuiObject
 
-    visibilityStatus = not visibilityStatus
+    visible = not visible
 
-    if not visibilityStatus then
-        Spectate.disable()
+    if Spectate.enabled then
+        if visible then
+            Input.enable("Spectate")
+        else
+            Input.disable("Spectate")
+        end
     end
 
-    local goal = PlayerListConfig.toggle.goals[visibilityStatus]
+    local goal = PlayerListConfig.toggle.goals[visible]
     
     for _, row in playerList:GetChildren() do
         if not row:IsA("GuiObject") then
@@ -108,14 +112,6 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
 
         local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
         local tween = TweenUtils.create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
-
-        tween.Completed:Once(function(_: Enum.PlaybackState)
-            if not visibilityStatus then
-                return
-            end
-
-            Spectate.enable()
-        end)
 
         tween:Play()
     end

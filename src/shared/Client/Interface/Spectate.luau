@@ -35,7 +35,7 @@ local optionToFunctionMap: { [SimulationOptions]: (...any) -> () } = nil
 
 
 local Spectate = {}
-Spectate.canEnable = false
+Spectate.enabled = false
 
 
 local function init(): ()
@@ -193,15 +193,15 @@ end
 
 
 function Spectate.enable(): ()
-    if not Spectate.canEnable then
-        return
-    end
+    Spectate.enabled = true
 
     Input.enable("Spectate")
 end
 
 
 function Spectate.disable(): ()
+    Spectate.enabled = false
+
     Input.disable("Spectate")
 
     if currentHover then

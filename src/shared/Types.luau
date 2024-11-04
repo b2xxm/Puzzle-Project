@@ -1,5 +1,6 @@
 export type LookUp<T> = { [T]: boolean }
 export type InputMethod = Enum.KeyCode | Enum.UserInputType
+export type DeviceType = "Desktop" | "Mobile"
 
 
 export type Board = { [string]: PieceType }

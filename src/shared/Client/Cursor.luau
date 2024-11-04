@@ -6,11 +6,13 @@ local shared = ReplicatedStorage.Shared
 local client = shared.Client
 
 
+local Types = require(shared.Types)
 local Input = require(client.Input)
 local InterfaceUtils = require(client.Interface.Utils)
+local Selector = require(client.Interface.Selector)
 
 
-type DeviceType = "Desktop" | "Mobile" | "Console"
+type DeviceType = Types.DeviceType
 
 
 local player: Player = Players.LocalPlayer
@@ -83,6 +85,9 @@ local function mobileAction(): (string, Enum.UserInputState, InputObject) -> Enu
             local delta = input.Position - startPosition
 
             move(currentPosition + delta)
+
+            local newPosition = Cursor.getCursorPosition()
+            Selector.action(state, Enum.UserInputType.MouseMovement, newPosition)
         end
     
         return Enum.ContextActionResult.Pass
@@ -109,6 +114,11 @@ function Cursor.enable(deviceType: DeviceType)
             Enum.UserInputType.Touch
         )
     end
+end
+
+
+function Cursor.getCursorPosition(): Vector3
+    return Vector3.new(cursor.AbsolutePosition.X, cursor.AbsolutePosition.Y, 0)
 end
 
 
