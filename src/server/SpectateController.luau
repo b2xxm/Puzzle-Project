@@ -120,6 +120,8 @@ function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector
 
     if not subscribers then
         remotes.Spectate.Request:InvokeClient(broadcaster, false)
+
+        return
     end
 
     for _, subscriber in subscribers do
