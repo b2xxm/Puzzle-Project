@@ -270,7 +270,8 @@ function Selector.action(state: Enum.UserInputState, inputType: Enum.UserInputTy
         end
     else
         if shouldBroadcast then
-            remotes.Spectate.Broadcast:FireServer(position)
+            local scaleX, scaleY = InterfaceUtils.toScalePosition(position.X, position.Y)
+            remotes.Spectate.Broadcast:FireServer(scaleX, scaleY)
         end
 
         if state ~= Enum.UserInputState.Change or not selected then

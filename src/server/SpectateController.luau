@@ -115,7 +115,7 @@ function SpectateController.onSubmit(broadcaster: Player): ()
 end
 
 
-function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector3): ()
+function SpectateController.broadcast(broadcaster: Player, mouseX, mouseY): ()
     local subscribers = subscriptions[broadcaster]
 
     if not subscribers then
@@ -125,7 +125,7 @@ function SpectateController.broadcast(broadcaster: Player, mousePosition: Vector
     end
 
     for _, subscriber in subscribers do
-        remotes.Spectate.Broadcast:FireClient(subscriber, mousePosition)
+        remotes.Spectate.Broadcast:FireClient(subscriber, mouseX, mouseY)
     end
 end
 

@@ -12,7 +12,6 @@ local TweenUtils = require(shared.TweenUtils)
 local PlayerListConfig = require(client.Interface.PlayerList.Config)
 local BoardInterface = require(client.Interface.Board)
 local Reserve = require(client.Interface.Reserve)
-local InterfaceUtils = require(client.Interface.Utils)
 local Input = require(client.Input)
 
 
@@ -216,9 +215,8 @@ function Spectate.disable(): ()
 end
 
 
-function Spectate.moveMouse(mousePosition: Vector3): ()
-    local x, y = InterfaceUtils.toScalePosition(mousePosition.X, mousePosition.Y)
-    cursor.Position = UDim2.fromScale(x, y)
+function Spectate.moveMouse(mouseX: number, mouseY: number): ()
+    cursor.Position = UDim2.fromScale(mouseX, mouseY)
 
     if selectedPiece then
         selectedPiece.object.Position = cursor.Position
