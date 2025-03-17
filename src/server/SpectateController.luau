@@ -115,7 +115,7 @@ function SpectateController.onSubmit(broadcaster: Player): ()
 end
 
 
-function SpectateController.broadcast(broadcaster: Player, mouseX, mouseY): ()
+function SpectateController.broadcast(broadcaster: Player, mouseX: number, mouseY: number): ()
     local subscribers = subscriptions[broadcaster]
 
     if not subscribers then
