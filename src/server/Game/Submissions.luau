@@ -43,7 +43,7 @@ function Submissions.getCount(): number
 end
 
 
-function Submissions.get(player: Player): Board
+function Submissions.get(player: Player): Board?
     return submissions[player]
 end
 

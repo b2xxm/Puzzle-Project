@@ -103,19 +103,12 @@ end
 
 
 local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local board: Board?, pieces: ReservedPieces?, mousePosition: UDim2? = remotes.Spectate.Subscribe:InvokeServer(
+    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(
         shouldSubscribe,
         newName,
         oldName
     )
 
-    if mousePosition then
-        cursor.Position = mousePosition
-        cursor.Visible = true
-    else
-        cursor.Visible = false
-    end
-    
     if not board then
         return
     end
@@ -124,12 +117,16 @@ local function subscribe(shouldSubscribe: boolean, newName: string, oldName: str
     Reserve.removePieceObjects()
 
     if pieces then
+        cursor.Visible = true
+
         for _, piece in pieces do
             local pieceData = piece.pieceData
     
             local pieceObject = Reserve.generatePiece(pieceData.shape, pieceData.type)
             pieceObject.object.Position = piece.position
         end
+    else
+        cursor.Visible = false
     end
 end
 

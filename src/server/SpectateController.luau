@@ -43,7 +43,7 @@ local function unsubscribe(player: Player, broadcaster: Player): ()
 end
 
 
-function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, selected: string, previous: string?): (Board?, ReservedPieces?, UDim2?)
+function SpectateController.subscribe(player: Player, shouldSubscribe: boolean, selected: string, previous: string?): (Board?, ReservedPieces?)
     local selectedPlayer = Players[selected]
 
     if not shouldSubscribe then
@@ -86,8 +86,6 @@ function SpectateController.stopBroadcast(broadcaster: Player): ()
     local subscribers = subscriptions[broadcaster]
 
     if subscribers then
-        subscriptions[broadcaster] = nil
-
         while true do
             local subscriber = subscribers[1]
 

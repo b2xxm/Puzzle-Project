@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 
 
 local shared = ReplicatedStorage.Shared
@@ -356,7 +355,7 @@ function Selector.disable(): ()
 end
 
 
-function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?, UDim2?)
+function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?)
     shouldBroadcast = enabled
 
     if shouldBroadcast then
@@ -370,11 +369,7 @@ function Selector.setBroadcastStatus(enabled: boolean): (Board?, ReservedPieces?
             table.insert(pieces, pieceInfo)
         end
 
-        local mousePosition = UserInputService:GetMouseLocation()
-        local scaleX, scaleY = InterfaceUtils.toScalePosition(mousePosition.X, mousePosition.Y)
-        local scalePosition = UDim2.fromScale(scaleX, scaleY)
-
-        return BoardInterface.board, pieces, scalePosition
+        return BoardInterface.board, pieces
     end
 
     return
