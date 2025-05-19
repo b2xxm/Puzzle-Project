@@ -21,15 +21,12 @@ type Board = Types.Board
 
 local activeTimerThread: thread = nil
 local currentStartTime: number = 0
+local board: Board = BoardService.new()
+local blocked: { string } = {}
 
 local players: { active: LookUp<Player>, inactive: LookUp<Player> } = {
     active = {},
     inactive = {}
-}
-
-local cache: { board: Board, blocked: { string } } = {
-    board = BoardService.new(),
-    blocked = {}
 }
 
 
@@ -39,7 +36,7 @@ local Game = {}
 local function broadcastSpecific(player: Player): ()
     remotes.BroadcastNewBoard:FireClient(
         player,
-        cache.blocked,
+        blocked,
         currentStartTime,
         GameConfig.maxGameDuration
     )
@@ -67,14 +64,14 @@ end
 
 
 function Game.start(): ()
-    cache.blocked = Dices.roll()
+    blocked = Dices.roll()
     activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
     currentStartTime = Workspace:GetServerTimeNow()
 
-    BoardService.setBlocked(cache.board, cache.blocked)
+    BoardService.setBlocked(board, blocked)
     
     remotes.BroadcastNewBoard:FireAllClients(
-        cache.blocked,
+        blocked,
         currentStartTime,
         GameConfig.maxGameDuration
     )
@@ -88,7 +85,7 @@ function Game.finish(): ()
 
     task.wait(GameConfig.intermissionDuration)
 
-    BoardService.reset(cache.board)
+    BoardService.reset(board)
     Submissions.clear()
     SpectateController.stopAllBroadcasts()
     Game.start()
@@ -96,7 +93,7 @@ end
 
 
 function Game.submit(player: Player, solution: Board): ()
-    if BoardService.validate(cache.board, solution) then
+    if BoardService.validate(board, solution) then
         if Submissions.get(player) then
             return
         end
