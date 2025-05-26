@@ -8,7 +8,7 @@ local client = shared.Client
 
 
 local TweenUtils = require(shared.TweenUtils)
-local PlayerListConfig = require(script.Config)
+local Configuration = require(shared.Configuration)
 local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
 
@@ -67,7 +67,7 @@ function PlayerList.setFinished(otherPlayer: Player): ()
     local name = row:WaitForChild("PlayerName")
     local background = name:WaitForChild("Background") :: GuiObject
 
-    background.BackgroundColor3 = PlayerListConfig.colours.finished
+    background.BackgroundColor3 = Configuration.playerList.colours.finished
 end
 
 
@@ -76,7 +76,7 @@ function PlayerList.reset(): ()
         local name = row:WaitForChild("PlayerName")
         local background = name:WaitForChild("Background") :: GuiObject
 
-        background.BackgroundColor3 = PlayerListConfig.colours.unfinished
+        background.BackgroundColor3 = Configuration.playerList.colours.unfinished
     end
 end
 
@@ -101,7 +101,7 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
         end
     end
 
-    local goal = PlayerListConfig.toggle.goals[visible]
+    local goal = Configuration.playerList.toggle.goals[visible]
     
     for _, row in playerList:GetChildren() do
         if not row:IsA("GuiObject") then
@@ -111,7 +111,7 @@ function PlayerList.toggleVisibility(_: string, inputState: Enum.UserInputState,
         TweenUtils.cancel(row)
 
         local rowLabel = row:WaitForChild("PlayerName") :: GuiObject
-        local tween = TweenUtils.create(rowLabel, PlayerListConfig.toggle.tweenInfo, goal)
+        local tween = TweenUtils.create(rowLabel, Configuration.playerList.toggle.tweenInfo, goal)
 
         tween:Play()
     end

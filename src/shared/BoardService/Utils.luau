@@ -1,4 +1,10 @@
-local BoardConfig = require(script.Parent.Config)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+
+local shared = ReplicatedStorage.Shared
+
+
+local Configuration = require(shared.Configuration)
 
 
 local ASCII_OFFSET: number = 64
@@ -12,11 +18,11 @@ local function validateCoordinates(x: number?, y: number?): boolean
         return false
     end
 
-    if x < 1 or x > BoardConfig.columns then
+    if x < 1 or x > Configuration.board.columns then
         return false
     end
 
-    if y < 1 or y > BoardConfig.rows then
+    if y < 1 or y > Configuration.board.rows then
         return false
     end
 

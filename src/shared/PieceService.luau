@@ -6,7 +6,7 @@ local shared = ReplicatedStorage.Shared
 
 local Types = require(shared.Types)
 local BoardUtils = require(shared.BoardService.Utils)
-local BoardConfig = require(shared.BoardService.Config)
+local Configuration = require(shared.Configuration)
 
 
 type Board = Types.Board
@@ -39,9 +39,9 @@ PieceService.pieceVariationsMap = PIECE_VARIATIONS_MAP
 
 local function getShapeBounds(addresses: { string }): ShapeBounds
     local shapeBounds = {
-        top = BoardConfig.rows,
+        top = Configuration.board.rows,
         bottom = 1,
-        left = BoardConfig.columns,
+        left = Configuration.board.columns,
         right = 1
     }
 

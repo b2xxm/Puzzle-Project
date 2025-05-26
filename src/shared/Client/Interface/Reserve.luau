@@ -10,8 +10,7 @@ local client = shared.Client
 
 local Types = require(shared.Types)
 local PieceService = require(shared.PieceService)
-local BoardConfig = require(shared.BoardService.Config)
-local BoardInterfaceConfig = require(client.Interface.Board.Config)
+local Configuration = require(shared.Configuration)
 local InterfaceUtils = require(client.Interface.Utils)
 
 
@@ -61,7 +60,7 @@ local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceT
         rowContainer.LayoutOrder = rowIndex
 
         local listLayout = rowContainer:WaitForChild("UIListLayout") :: UIListLayout
-        listLayout.Padding = UDim.new(0, BoardInterfaceConfig.padding)
+        listLayout.Padding = UDim.new(0, Configuration.boardInterface.padding)
 
         for bitPosition = pieceData.metadata.width - 1, 0, -1 do
             local bit = bit32.extract(shapeRow, bitPosition, 1)
@@ -70,7 +69,7 @@ local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceT
             local pieceCell = pieceCellPrefab:Clone()
             pieceCell.Transparency = 1 - bit
             pieceCell.LayoutOrder = pieceData.metadata.width - bitPosition
-            pieceCell.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
+            pieceCell.BackgroundColor3 = Configuration.boardInterface.colours.occupied[pieceType]
             pieceCell.ZIndex = 3 -- arbitrary ik
             pieceCell.Parent = rowContainer
         end
@@ -89,8 +88,8 @@ function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceOb
     local boardFrame = gameUi:WaitForChild("Board")
     local grid = boardFrame:WaitForChild("Grid") :: Frame
 
-    local padding = BoardInterfaceConfig.padding
-    local rows, columns = BoardConfig.rows, BoardConfig.columns
+    local padding = Configuration.boardInterface.padding
+    local rows, columns = Configuration.board.rows, Configuration.board.columns
 
     local cellSizeX = (grid.AbsoluteSize.X - (padding * (columns - 1))) / columns
     local cellSizeY = (grid.AbsoluteSize.Y - (padding * (rows - 1))) / rows

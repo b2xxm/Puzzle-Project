@@ -9,7 +9,7 @@ local client = shared.Client
 
 local Types = require(shared.Types)
 local TweenUtils = require(shared.TweenUtils)
-local PlayerListConfig = require(client.Interface.PlayerList.Config)
+local Configuration = require(shared.Configuration)
 local BoardInterface = require(client.Interface.Board)
 local Reserve = require(client.Interface.Reserve)
 local Input = require(client.Input)
@@ -57,9 +57,9 @@ end
 local function hover(object: GuiObject, enabled: boolean): ()
     TweenUtils.cancel(object)
 
-    local goal = PlayerListConfig.hover.goals[enabled]
+    local goal = Configuration.playerList.hover.goals[enabled]
     
-    local tween = TweenUtils.create(object, PlayerListConfig.hover.tweenInfo, goal)
+    local tween = TweenUtils.create(object, Configuration.playerList.hover.tweenInfo, goal)
     tween:Play()
 end
 

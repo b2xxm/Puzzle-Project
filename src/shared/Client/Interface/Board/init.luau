@@ -9,8 +9,7 @@ local prefabs = ReplicatedStorage.Prefabs
 local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
 local BoardUtils = require(shared.BoardService.Utils)
-local BoardConfig = require(shared.BoardService.Config)
-local BoardInterfaceConfig = require(script.Config)
+local Configuration = require(shared.Configuration)
 
 
 type Board = Types.Board
@@ -57,10 +56,10 @@ local function init(): ()
     local grid = boardFrame:WaitForChild("Grid")
     local rows = grid:WaitForChild("Rows")
 
-    for y = 1, BoardConfig.rows do
+    for y = 1, Configuration.board.rows do
         local rowContainer = createRowContainer(y)
 
-        for x = 1, BoardConfig.columns do
+        for x = 1, Configuration.board.columns do
             local cell = createCell(x, y)
 
             if not cell then
@@ -69,7 +68,7 @@ local function init(): ()
 
             cells[cell.Name] = cell
 
-            cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+            cell.BackgroundColor3 = Configuration.boardInterface.colours.unoccupied
             cell.Parent = rowContainer
         end
 
@@ -86,7 +85,7 @@ function Board.newGame(blockerAddresses: { string }): ()
 
     for address in board do
         local cell = cells[address]
-        cell.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+        cell.BackgroundColor3 = Configuration.boardInterface.colours.unoccupied
 
         local blocker = cell:FindFirstChild("Blocker")
 
@@ -115,7 +114,7 @@ function Board.placePiece(occupyingAddresses: { string }, pieceType: PieceType):
         return false
     end
 
-    local colour = BoardInterfaceConfig.colours.occupied[pieceType]
+    local colour = Configuration.boardInterface.colours.occupied[pieceType]
 
     for _, address in occupyingAddresses do
         local cell = cells[address]
@@ -129,7 +128,7 @@ end
 function Board.removePiece(occupyingAddresses: { string }): ()
     for _, address in occupyingAddresses do
         board[address] = "none"
-        cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+        cells[address].BackgroundColor3 = Configuration.boardInterface.colours.unoccupied
     end
 end
 
@@ -143,12 +142,12 @@ function Board.loadBoard(boardToLoad: Board): ()
         board[address] = pieceType
 
         if pieceType == "none" then
-            cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+            cells[address].BackgroundColor3 = Configuration.boardInterface.colours.unoccupied
 
             continue
         end
 
-        cells[address].BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
+        cells[address].BackgroundColor3 = Configuration.boardInterface.colours.occupied[pieceType]
     end
 end
 

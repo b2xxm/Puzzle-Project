@@ -9,7 +9,7 @@ local remotes = ReplicatedStorage.Remotes
 
 local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
-local GameConfig = require(script.Config)
+local Configuration = require(shared.Configuration)
 local Dices = require(script.Dices)
 local Submissions = require(script.Submissions)
 local SpectateController = require(ServerScriptService.Server.SpectateController)
@@ -48,7 +48,7 @@ end
 
 function Game.start(): ()
     blocked = Dices.roll()
-    activeTimerThread = task.delay(GameConfig.maxGameDuration, Game.finish)
+    activeTimerThread = task.delay(Configuration.game.maxGameDuration, Game.finish)
     currentStartTime = Workspace:GetServerTimeNow()
 
     BoardService.setBlocked(board, blocked)
@@ -56,7 +56,7 @@ function Game.start(): ()
     remotes.BroadcastNewBoard:FireAllClients(
         blocked,
         currentStartTime,
-        GameConfig.maxGameDuration
+        Configuration.game.maxGameDuration
     )
 end
 
@@ -66,7 +66,7 @@ function Game.finish(): ()
         task.cancel(activeTimerThread)
     end
 
-    task.wait(GameConfig.intermissionDuration)
+    task.wait(Configuration.game.intermissionDuration)
 
     BoardService.reset(board)
     Submissions.clear()
@@ -98,7 +98,7 @@ function Game.playerAdded(player: Player): ()
         player,
         blocked,
         currentStartTime,
-        GameConfig.maxGameDuration
+        Configuration.game.maxGameDuration
     )
     
     for otherPlayer in Submissions.list do
