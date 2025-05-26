@@ -17,11 +17,6 @@ type PieceVariations = { [PieceType]: { PieceShape } }
 type ShapeBounds = { top: number, bottom: number, left: number, right: number }
 
 
-local PIECE_TYPES: { PieceType } = {
-    "red", "orange", "yellow", "green", "lblue", "dblue",
-    "purple", "brown", "grey", "blocker", "none"
-}
-
 local PIECE_VARIATIONS_MAP: PieceVariations = {
     red = { { 0b110, 0b011 }, { 0b01, 0b11, 0b10 }, { 0b011, 0b110 }, { 0b10, 0b11, 0b01 } },
     orange = { { 0b111 }, { 0b1, 0b1, 0b1 } },
@@ -67,14 +62,8 @@ local function getShapeBounds(addresses: { string }): ShapeBounds
 end
 
 
-function PieceService.isAType(toCheck: string): boolean
-    for _, pieceType: PieceType in PIECE_TYPES do
-        if toCheck == pieceType then
-            return true
-        end
-    end
-
-    return false
+function PieceService.isAType(pieceType: string): boolean
+    return PIECE_VARIATIONS_MAP[pieceType :: PieceType] ~= nil
 end
 
 
