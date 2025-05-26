@@ -32,9 +32,6 @@ local function createRowContainer(y: number): Frame
     local container = containerPrefab:Clone()
     container.Name = BoardUtils.getRow(y)
     container.LayoutOrder = y
-
-    local listLayout = container:WaitForChild("UIListLayout")
-    listLayout.Padding = UDim.new(0, BoardInterfaceConfig.padding)
     
     return container
 end
@@ -58,10 +55,7 @@ local function init(): ()
     local gameUi = playerGui:WaitForChild("GameUi")
     local boardFrame = gameUi:WaitForChild("Board")
     local grid = boardFrame:WaitForChild("Grid")
-
     local rows = grid:WaitForChild("Rows")
-    local listLayout = rows:WaitForChild("UIListLayout") :: UIListLayout
-    listLayout.Padding = UDim.new(0, BoardInterfaceConfig.padding)
 
     for y = 1, BoardConfig.rows do
         local rowContainer = createRowContainer(y)

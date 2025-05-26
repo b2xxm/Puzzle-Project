@@ -33,23 +33,6 @@ local players: { active: LookUp<Player>, inactive: LookUp<Player> } = {
 local Game = {}
 
 
-local function broadcastSpecific(player: Player): ()
-    remotes.BroadcastNewBoard:FireClient(
-        player,
-        blocked,
-        currentStartTime,
-        GameConfig.maxGameDuration
-    )
-end
-
-
-local function updateFinishers(player: Player): ()
-    for otherPlayer in Submissions.list do
-        remotes.UpdateFinishers:FireClient(player, otherPlayer)
-    end
-end
-
-
 local function checkFinish(): ()
     local activePlayerCount = 0
 
@@ -111,8 +94,16 @@ end
 function Game.playerAdded(player: Player): ()
     players.active[player] = true
     
-    broadcastSpecific(player)
-    updateFinishers(player)
+    remotes.BroadcastNewBoard:FireClient(
+        player,
+        blocked,
+        currentStartTime,
+        GameConfig.maxGameDuration
+    )
+    
+    for otherPlayer in Submissions.list do
+        remotes.UpdateFinishers:FireClient(player, otherPlayer)
+    end
 end
 
 

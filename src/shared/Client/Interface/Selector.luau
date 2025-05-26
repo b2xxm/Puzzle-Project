@@ -60,10 +60,8 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
             local address = BoardUtils.toAddress(x, y) :: string
             local cellObject = BoardInterface.cells[address]
 
-            local padding = BoardInterfaceConfig.padding
-
-            local shapeSizeX = (cellObject.AbsoluteSize.X + padding) * shapeWidth - padding
-            local shapeSizeY = (cellObject.AbsoluteSize.Y + padding) * shapeHeight - padding
+            local shapeSizeX = (cellObject.AbsoluteSize.X) * shapeWidth
+            local shapeSizeY = (cellObject.AbsoluteSize.Y) * shapeHeight
 
             local shapeCentreX = cellObject.AbsolutePosition.X + shapeSizeX / 2
             local shapeCentreY = cellObject.AbsolutePosition.Y + shapeSizeY / 2

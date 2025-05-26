@@ -56,7 +56,7 @@ end
 
 local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceType: PieceType): ()
     for rowIndex, shapeRow in pieceData.shape do
-        local rowContainerPrefab = prefabs.Grid:WaitForChild("RowContainer") :: Frame
+        local rowContainerPrefab = prefabs.Piece:WaitForChild("RowContainer") :: Frame
         local rowContainer = rowContainerPrefab:Clone()
         rowContainer.LayoutOrder = rowIndex
 
@@ -71,6 +71,7 @@ local function fillPieceCells(container: GuiObject, pieceData: PieceData, pieceT
             pieceCell.Transparency = 1 - bit
             pieceCell.LayoutOrder = pieceData.metadata.width - bitPosition
             pieceCell.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
+            pieceCell.ZIndex = 3 -- arbitrary ik
             pieceCell.Parent = rowContainer
         end
 
@@ -80,7 +81,6 @@ end
 
 
 function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceObjectInfo
-    -- fix more scaling issues....
     local pieceData = PieceService.getPieceDataByShape(shape, pieceType)
 
     local playerGui = player.PlayerGui
@@ -99,7 +99,7 @@ function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceOb
     
     local piecePrefab = prefabs.Piece:WaitForChild("Bounds") :: GuiObject
     local piece = piecePrefab:Clone()
-    piece.Size = UDim2.fromScale(boundSizeX / camera.ViewportSize.X, 0)
+    piece.Size = UDim2.fromScale(0, boundSizeY / camera.ViewportSize.Y)
 
     local aspectRatio = piece:WaitForChild("UIAspectRatioConstraint") :: UIAspectRatioConstraint
     aspectRatio.AspectRatio = boundSizeX / boundSizeY
