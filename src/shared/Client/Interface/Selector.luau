@@ -10,10 +10,9 @@ local client = shared.Client
 local Types = require(shared.Types)
 local PieceService = require(shared.PieceService)
 local BoardUtils = require(shared.BoardService.Utils)
-local BoardConfig = require(shared.BoardService.Config)
+local Configuration = require(shared.Configuration)
 local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
-local BoardInterfaceConfig = require(client.Interface.Board.Config)
 local InterfaceUtils = require(client.Interface.Utils)
 local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
@@ -55,8 +54,8 @@ local function getHoveringAddresses(mousePos: Vector3, objectInfo: PieceObjectIn
     local shapeHeight = objectInfo.pieceData.metadata.height
     local shapeWidth = objectInfo.pieceData.metadata.width
 
-    for y = 1, BoardConfig.rows - shapeHeight + 1 do
-        for x = 1, BoardConfig.columns - shapeWidth + 1 do
+    for y = 1, Configuration.board.rows - shapeHeight + 1 do
+        for x = 1, Configuration.board.columns - shapeWidth + 1 do
             local address = BoardUtils.toAddress(x, y) :: string
             local cellObject = BoardInterface.cells[address]
 
@@ -115,9 +114,9 @@ local function clearHighlights(): ()
         local cellObject = BoardInterface.cells[address]
 
         if pieceType == "none" or pieceType == "blocker" then
-            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.unoccupied
+            cellObject.BackgroundColor3 = Configuration.boardInterface.colours.unoccupied
         else
-            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.occupied[pieceType]
+            cellObject.BackgroundColor3 = Configuration.boardInterface.colours.occupied[pieceType]
         end
 
         cellObject.Transparency = 0
@@ -314,14 +313,14 @@ function Selector.update(objectInfo: PieceObjectInfo, position: Vector3): ()
         local pieceType: PieceType = BoardInterface.board[address]
         local cellObject = BoardInterface.cells[address]
 
-        cellObject.Transparency = BoardInterfaceConfig.colours.valid.transparency
-        cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.valid.colour
+        cellObject.Transparency = Configuration.boardInterface.colours.valid.transparency
+        cellObject.BackgroundColor3 = Configuration.boardInterface.colours.valid.colour
 
         if pieceType ~= "none" then
             available = false
 
-            cellObject.Transparency = BoardInterfaceConfig.colours.invalid.transparency
-            cellObject.BackgroundColor3 = BoardInterfaceConfig.colours.invalid.colour
+            cellObject.Transparency = Configuration.boardInterface.colours.invalid.transparency
+            cellObject.BackgroundColor3 = Configuration.boardInterface.colours.invalid.colour
         end
     end
 
