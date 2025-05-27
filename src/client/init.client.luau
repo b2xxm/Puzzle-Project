@@ -51,8 +51,8 @@ init()
 
 remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
 remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
-remotes.Spectate.Broadcast.OnClientEvent:Connect(Spectate.moveMouse)
-remotes.Spectate.Simulate.OnClientEvent:Connect(Spectate.simulate)
+remotes.Spectate.StreamCursor.OnClientEvent:Connect(Spectate.moveMouse)
+remotes.Spectate.SimulateActions.OnClientEvent:Connect(Spectate.simulate)
 
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)
@@ -60,7 +60,7 @@ Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 
-remotes.Spectate.Request.OnClientInvoke = Selector.setBroadcastStatus
+remotes.Spectate.ToggleService.OnClientInvoke = Selector.setBroadcastStatus
 
 Input.register(
     "SinkMovement",

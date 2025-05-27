@@ -196,7 +196,7 @@ local function begin(inputPosition: Vector3): ()
         BoardInterface.removePiece(occupyingAddresses)
 
         if shouldBroadcast then
-            remotes.Spectate.Simulate:FireServer("Unplace", occupyingAddresses, pieceData)
+            remotes.Spectate.SimulateActions:FireServer("Unplace", occupyingAddresses, pieceData)
         end
     end
 
@@ -205,7 +205,7 @@ local function begin(inputPosition: Vector3): ()
     Selector.update(newSelected, inputPosition)
 
     if shouldBroadcast then
-        remotes.Spectate.Simulate:FireServer("Select", newSelected.pieceData.type)
+        remotes.Spectate.SimulateActions:FireServer("Select", newSelected.pieceData.type)
     end
 end
 
@@ -244,7 +244,7 @@ local function release(): ()
     selected = nil
 
     if shouldBroadcast then
-        remotes.Spectate.Simulate:FireServer("Unselect")
+        remotes.Spectate.SimulateActions:FireServer("Unselect")
     end
 end
 
@@ -268,7 +268,7 @@ function Selector.action(state: Enum.UserInputState, inputType: Enum.UserInputTy
     else
         if shouldBroadcast then
             local scaleX, scaleY = InterfaceUtils.toScalePosition(position.X, position.Y)
-            remotes.Spectate.Broadcast:FireServer(scaleX, scaleY)
+            remotes.Spectate.StreamCursor:FireServer(scaleX, scaleY)
         end
 
         if state ~= Enum.UserInputState.Change or not selected then
@@ -406,7 +406,7 @@ function Selector.pieceAction(state: Enum.UserInputState, keycode: Enum.KeyCode)
     Selector.update(selected, Vector3.new(x, y, 0))
 
     if shouldBroadcast then
-        remotes.Spectate.Simulate:FireServer("Replace", objectInfo.pieceData)
+        remotes.Spectate.SimulateActions:FireServer("Replace", objectInfo.pieceData)
     end
 end
 

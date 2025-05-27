@@ -12,7 +12,7 @@ local BoardService = require(shared.BoardService)
 local Configuration = require(shared.Configuration)
 local Dices = require(script.Dices)
 local Submissions = require(script.Submissions)
-local SpectateController = require(ServerScriptService.Server.SpectateController)
+local Subscriptions = require(ServerScriptService.Server.Subscriptions)
 
 
 type LookUp<T> = Types.LookUp<T>
@@ -70,7 +70,7 @@ function Game.finish(): ()
 
     BoardService.reset(board)
     Submissions.clear()
-    SpectateController.stopAllBroadcasts()
+    Subscriptions.stopAllServices()
     Game.start()
 end
 
@@ -82,7 +82,7 @@ function Game.submit(player: Player, solution: Board): ()
         end
 
         Submissions.add(player, solution)
-        SpectateController.onSubmit(player)
+        Subscriptions.onSubmit(player)
 
         remotes.UpdateFinishers:FireAllClients(player)
 
@@ -112,14 +112,12 @@ function Game.playerRemoving(player: Player): ()
         Submissions.remove(player)
 
         players.active[player] = nil
-
-        return
     end
 
     players.inactive[player] = nil
 
     checkFinish()
-    SpectateController.stopBroadcast(player)
+    Subscriptions.stopService(player)
 end
 
 

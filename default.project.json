@@ -20,16 +20,16 @@
         },
         "Spectate": {
           "$className": "Folder",
-          "Broadcast": {
+          "StreamCursor": {
             "$className": "UnreliableRemoteEvent"
           },
           "Subscribe": {
             "$className": "RemoteFunction"
           },
-          "Request": {
+          "ToggleService": {
             "$className": "RemoteFunction"
           },
-          "Simulate": {
+          "SimulateActions": {
             "$className": "RemoteEvent"
           }
         }
