@@ -230,7 +230,7 @@ local function release(): ()
             end
 
             if shouldBroadcast then
-                remotes.Spectate.Simulate:FireServer("Place", currentHoveringAddresses, selected.pieceData.type)
+                remotes.Spectate.SimulateActions:FireServer("Place", currentHoveringAddresses, selected.pieceData.type)
             end
         end
 

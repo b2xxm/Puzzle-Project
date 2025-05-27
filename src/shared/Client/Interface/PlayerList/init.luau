@@ -51,6 +51,7 @@ function PlayerList.removePlayer(otherPlayer: Player): ()
         return
     end
 
+    Spectate.serviceLeft(otherPlayer)
     row:Destroy()
 
     rows[otherPlayer] = nil

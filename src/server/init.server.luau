@@ -25,3 +25,4 @@ remotes.Spectate.StreamCursor.OnServerEvent:Connect(Subscriptions.streamCursor)
 remotes.Spectate.SimulateActions.OnServerEvent:Connect(Subscriptions.simulate)
 
 remotes.Spectate.Subscribe.OnServerInvoke = Subscriptions.subscribe
+remotes.Spectate.Unsubscribe.OnServerInvoke = Subscriptions.unsubscribe

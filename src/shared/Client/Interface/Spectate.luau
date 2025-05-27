@@ -205,6 +205,21 @@ local function action(_: string, state: Enum.UserInputState, input: InputObject)
 end
 
 
+function Spectate.serviceLeft(service: Player): ()
+    if not spectating then
+        return
+    end
+
+    local row = spectating.Parent
+
+    if row and row.Name == service.Name then
+        unsubscribe(service.Name, false)
+
+        spectating = nil
+    end
+end
+
+
 function Spectate.enable(): ()
     Spectate.enabled = true
 

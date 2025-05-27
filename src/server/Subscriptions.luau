@@ -79,9 +79,16 @@ end
 
 
 function Subscriptions.unsubscribe(player: Player, serviceName: string): (Board?, ReservedPieces?)
-    unsubscribe(player, Players[serviceName])
+    local service = findPlayer(serviceName)
+    local selfSolution = Submissions.get(player)
 
-    return Submissions.get(player)
+    if not service then
+        return selfSolution
+    end
+
+    unsubscribe(player, service)
+
+    return selfSolution
 end
 
 
@@ -111,13 +118,14 @@ function Subscriptions.stopAllServices(): ()
 end
 
 
-function Subscriptions.onSubmit(broadcaster: Player): ()
+function Subscriptions.onSubmit(service: Player): ()
     -- if the service finishes, firing the remote everytime would be unnecessary
     -- stopping this service would allow the subscribers to view the solution without the service streaming it
 
-    remotes.Spectate.ToggleService:InvokeClient(broadcaster, false)
 
-    subscriptions[broadcaster] = nil
+    remotes.Spectate.ToggleService:InvokeClient(service, false)
+
+    subscriptions[service] = nil
 end
 
 
