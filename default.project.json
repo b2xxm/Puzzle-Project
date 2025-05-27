@@ -26,6 +26,9 @@
           "Subscribe": {
             "$className": "RemoteFunction"
           },
+          "Unsubscribe": {
+            "$className": "RemoteFunction"
+          },
           "ToggleService": {
             "$className": "RemoteFunction"
           },

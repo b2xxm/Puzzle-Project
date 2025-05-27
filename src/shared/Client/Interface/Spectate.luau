@@ -102,17 +102,7 @@ local function update(input: InputObject): ()
 end
 
 
-local function subscribe(shouldSubscribe: boolean, newName: string, oldName: string?): ()
-    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(
-        shouldSubscribe,
-        newName,
-        oldName
-    )
-
-    if not board then
-        return
-    end
-
+local function loadBoard(board: Board, pieces: ReservedPieces?): ()
     BoardInterface.loadBoard(board)
     Reserve.removePieceObjects()
 
@@ -131,6 +121,32 @@ local function subscribe(shouldSubscribe: boolean, newName: string, oldName: str
 end
 
 
+local function subscribe(serviceName: string): ()
+    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(serviceName)
+
+    if not board then
+        return
+    end
+
+    loadBoard(board, pieces)
+end
+
+
+local function unsubscribe(serviceName: string, isSubscribing: boolean): ()
+    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Unsubscribe:InvokeServer(serviceName)
+
+    if not board then
+        return
+    end
+
+    if isSubscribing then
+        return
+    end
+
+    loadBoard(board, pieces)
+end
+
+
 local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
     local newSelectRow = newSelection.Parent :: Instance
 
@@ -143,9 +159,10 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
         local oldIndicator = oldSelection:WaitForChild("Indicator") :: GuiObject
         oldIndicator.Visible = false
 
-        subscribe(true, newSelectRow.Name, oldSelectionRow.Name)
+        unsubscribe(oldSelectionRow.Name, true)
+        subscribe(newSelectRow.Name)
     else
-        subscribe(true, newSelectRow.Name, nil)
+        subscribe(newSelectRow.Name)
     end
 
     spectating = newSelection
@@ -155,7 +172,7 @@ end
 local function unselect(currentSelection: GuiObject): ()
     local row = currentSelection.Parent :: Instance
 
-    subscribe(false, row.Name, nil)
+    unsubscribe(row.Name, false)
 
     local indicator = currentSelection:WaitForChild("Indicator") :: GuiObject
     indicator.Visible = false
