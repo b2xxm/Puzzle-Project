@@ -4,12 +4,12 @@ local Workspace = game:GetService("Workspace")
 
 
 local shared = ReplicatedStorage.Shared
-local remotes = ReplicatedStorage.Remotes
 
 
 local Types = require(shared.Types)
 local BoardService = require(shared.BoardService)
 local Configuration = require(shared.Configuration)
+local Remotes = require(shared.Remotes)
 local Dices = require(script.Dices)
 local Submissions = require(script.Submissions)
 local Subscriptions = require(ServerScriptService.Server.Subscriptions)
@@ -53,7 +53,7 @@ function Game.start(): ()
 
     BoardService.setBlocked(board, blocked)
     
-    remotes.BroadcastNewBoard:FireAllClients(
+    Remotes.BroadcastNewBoard.fireAllClients(
         blocked,
         currentStartTime,
         Configuration.game.maxGameDuration
@@ -69,8 +69,8 @@ function Game.finish(): ()
     task.wait(Configuration.game.intermissionDuration)
 
     BoardService.reset(board)
-    Submissions.clear()
     Subscriptions.stopAllServices()
+    Submissions.clear()
     Game.start()
 end
 
@@ -84,7 +84,7 @@ function Game.submit(player: Player, solution: Board): ()
         Submissions.add(player, solution)
         Subscriptions.onSubmit(player)
 
-        remotes.UpdateFinishers:FireAllClients(player)
+        Remotes.UpdateFinishers.fireAllClients(player)
 
         checkFinish()
     end
@@ -94,7 +94,7 @@ end
 function Game.playerAdded(player: Player): ()
     players.active[player] = true
     
-    remotes.BroadcastNewBoard:FireClient(
+    Remotes.BroadcastNewBoard.fireClient(
         player,
         blocked,
         currentStartTime,
@@ -102,7 +102,7 @@ function Game.playerAdded(player: Player): ()
     )
     
     for otherPlayer in Submissions.list do
-        remotes.UpdateFinishers:FireClient(player, otherPlayer)
+        Remotes.UpdateFinishers.fireClient(player, otherPlayer)
     end
 end
 

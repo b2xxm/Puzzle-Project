@@ -2,11 +2,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
-local remotes = ReplicatedStorage.Remotes
+local shared = ReplicatedStorage.Shared
 
 
 local Game = require(script.Game)
 local Subscriptions = require(script.Subscriptions)
+local Remotes = require(shared.Remotes)
 
 
 for _, player in Players:GetPlayers() do
@@ -20,9 +21,10 @@ Game.start()
 Players.PlayerAdded:Connect(Game.playerAdded)
 Players.PlayerRemoving:Connect(Game.playerRemoving)
 
-remotes.SubmitSolution.OnServerEvent:Connect(Game.submit)
-remotes.Spectate.StreamCursor.OnServerEvent:Connect(Subscriptions.streamCursor)
-remotes.Spectate.SimulateActions.OnServerEvent:Connect(Subscriptions.simulate)
 
-remotes.Spectate.Subscribe.OnServerInvoke = Subscriptions.subscribe
-remotes.Spectate.Unsubscribe.OnServerInvoke = Subscriptions.unsubscribe
+Remotes.SubmitSolution.onServerEvent(Game.submit)
+Remotes.Spectate.StreamCursor.onServerEvent(Subscriptions.streamCursor)
+Remotes.Spectate.SimulateActions.onServerEvent(Subscriptions.simulate)
+
+Remotes.Spectate.Subscribe.onInvoke(Subscriptions.subscribe)
+Remotes.Spectate.Unsubscribe.onInvoke(Subscriptions.unsubscribe)

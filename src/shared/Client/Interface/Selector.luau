@@ -3,7 +3,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 
 local shared = ReplicatedStorage.Shared
-local remotes = ReplicatedStorage.Remotes
 local client = shared.Client
 
 
@@ -11,6 +10,7 @@ local Types = require(shared.Types)
 local PieceService = require(shared.PieceService)
 local BoardUtils = require(shared.BoardService.Utils)
 local Configuration = require(shared.Configuration)
+local Remotes = require(shared.Remotes)
 local Reserve = require(client.Interface.Reserve)
 local BoardInterface = require(client.Interface.Board)
 local InterfaceUtils = require(client.Interface.Utils)
@@ -195,7 +195,7 @@ local function begin(inputPosition: Vector3): ()
         BoardInterface.removePiece(occupyingAddresses)
 
         if shouldBroadcast then
-            remotes.Spectate.SimulateActions:FireServer("Unplace", occupyingAddresses, pieceData)
+            Remotes.Spectate.SimulateActions.fireServer("Unplace", occupyingAddresses, pieceData)
         end
     end
 
@@ -204,7 +204,7 @@ local function begin(inputPosition: Vector3): ()
     Selector.update(newSelected, inputPosition)
 
     if shouldBroadcast then
-        remotes.Spectate.SimulateActions:FireServer("Select", newSelected.pieceData.type)
+        Remotes.Spectate.SimulateActions.fireServer("Select", newSelected.pieceData.type)
     end
 end
 
@@ -224,13 +224,13 @@ local function release(): ()
             Reserve.removePieceObject(selected)
 
             if #Reserve.reserved == 0 then
-                remotes.SubmitSolution:FireServer(BoardInterface.board)
+                Remotes.SubmitSolution.fireServer(BoardInterface.board)
 
                 Selector.disable()
             end
 
             if shouldBroadcast then
-                remotes.Spectate.SimulateActions:FireServer("Place", currentHoveringAddresses, selected.pieceData.type)
+                Remotes.Spectate.SimulateActions.fireServer("Place", currentHoveringAddresses, selected.pieceData.type)
             end
         end
 
@@ -243,7 +243,7 @@ local function release(): ()
     selected = nil
 
     if shouldBroadcast then
-        remotes.Spectate.SimulateActions:FireServer("Unselect")
+        Remotes.Spectate.SimulateActions.fireServer("Unselect")
     end
 end
 
@@ -267,7 +267,7 @@ function Selector.action(state: Enum.UserInputState, inputType: Enum.UserInputTy
     else
         if shouldBroadcast then
             local scaleX, scaleY = InterfaceUtils.toScalePosition(position.X, position.Y)
-            remotes.Spectate.StreamCursor:FireServer(scaleX, scaleY)
+            Remotes.Spectate.StreamCursor.fireServer(scaleX, scaleY)
         end
 
         if state ~= Enum.UserInputState.Change or not selected then
@@ -405,7 +405,7 @@ function Selector.pieceAction(state: Enum.UserInputState, keycode: Enum.KeyCode)
     Selector.update(selected, Vector3.new(x, y, 0))
 
     if shouldBroadcast then
-        remotes.Spectate.SimulateActions:FireServer("Replace", objectInfo.pieceData)
+        Remotes.Spectate.SimulateActions.fireServer("Replace", objectInfo.pieceData)
     end
 end
 

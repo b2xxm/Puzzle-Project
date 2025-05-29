@@ -3,13 +3,13 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
-local remotes = ReplicatedStorage.Remotes
 local client = shared.Client
 
 
 local Types = require(shared.Types)
 local TweenUtils = require(shared.TweenUtils)
 local Configuration = require(shared.Configuration)
+local Remotes = require(shared.Remotes)
 local BoardInterface = require(client.Interface.Board)
 local Reserve = require(client.Interface.Reserve)
 local Input = require(client.Input)
@@ -58,8 +58,8 @@ local function hover(object: GuiObject, enabled: boolean): ()
     TweenUtils.cancel(object)
 
     local goal = Configuration.playerList.hover.goals[enabled]
-    
     local tween = TweenUtils.create(object, Configuration.playerList.hover.tweenInfo, goal)
+
     tween:Play()
 end
 
@@ -122,7 +122,7 @@ end
 
 
 local function subscribe(serviceName: string): ()
-    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Subscribe:InvokeServer(serviceName)
+    local board: Board?, pieces: ReservedPieces? = Remotes.Spectate.Subscribe.invoke(serviceName)
 
     if not board then
         return
@@ -133,7 +133,7 @@ end
 
 
 local function unsubscribe(serviceName: string, isSubscribing: boolean): ()
-    local board: Board?, pieces: ReservedPieces? = remotes.Spectate.Unsubscribe:InvokeServer(serviceName)
+    local board: Board?, pieces: ReservedPieces? = Remotes.Spectate.Unsubscribe.invoke(serviceName)
 
     if not board then
         return

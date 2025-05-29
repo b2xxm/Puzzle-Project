@@ -5,7 +5,6 @@ local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 
 
-local remotes = ReplicatedStorage.Remotes
 local shared = ReplicatedStorage.Shared
 local client = shared.Client
 
@@ -20,6 +19,7 @@ local Spectate = require(client.Interface.Spectate)
 local Input = require(client.Input)
 local Actions = require(client.Interface.Actions)
 local Types = require(shared.Types)
+local Remotes = require(shared.Remotes)
 
 
 type DeviceType = Types.DeviceType
@@ -49,18 +49,18 @@ end
 init()
 
 
-remotes.BroadcastNewBoard.OnClientEvent:Connect(newGame)
-remotes.UpdateFinishers.OnClientEvent:Connect(PlayerList.setFinished)
-remotes.Spectate.StreamCursor.OnClientEvent:Connect(Spectate.moveMouse)
-remotes.Spectate.SimulateActions.OnClientEvent:Connect(Spectate.simulate)
-
 Players.PlayerAdded:Connect(PlayerList.addPlayer)
 Players.PlayerRemoving:Connect(PlayerList.removePlayer)
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 
 
-remotes.Spectate.ToggleService.OnClientInvoke = Selector.setBroadcastStatus
+Remotes.BroadcastNewBoard.onClientEvent(newGame)
+Remotes.UpdateFinishers.onClientEvent(PlayerList.setFinished)
+Remotes.Spectate.StreamCursor.onClientEvent(Spectate.moveMouse)
+Remotes.Spectate.SimulateActions.onClientEvent(Spectate.simulate)
+
+Remotes.Spectate.ToggleService.onInvoke(Selector.setBroadcastStatus)
 
 Input.register(
     "SinkMovement",

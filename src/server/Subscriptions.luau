@@ -4,10 +4,10 @@ local Players = game:GetService("Players")
 
 
 local shared = ReplicatedStorage.Shared
-local remotes = ReplicatedStorage.Remotes
 
 
 local Types = require(shared.Types)
+local Remotes = require(shared.Remotes)
 local Submissions = require(ServerScriptService.Server.Game.Submissions)
 
 
@@ -38,7 +38,7 @@ local function unsubscribe(player: Player, service: Player): ()
     if #subscribers == 0 then
         subscriptions[service] = nil
 
-        remotes.Spectate.ToggleService:InvokeClient(service, false)
+        Remotes.Spectate.ToggleService.invoke(service, false)
     end
 end
 
@@ -74,7 +74,7 @@ function Subscriptions.subscribe(player: Player, serviceName: string): (Board?, 
 
     table.insert(subscriptions[service], player)
 
-    return remotes.Spectate.ToggleService:InvokeClient(service, true)
+    return Remotes.Spectate.ToggleService.invoke(service, true)
 end
 
 
@@ -123,7 +123,7 @@ function Subscriptions.onSubmit(service: Player): ()
     -- stopping this service would allow the subscribers to view the solution without the service streaming it
 
 
-    remotes.Spectate.ToggleService:InvokeClient(service, false)
+    Remotes.Spectate.ToggleService.invoke(service, false)
 
     subscriptions[service] = nil
 end
@@ -133,13 +133,13 @@ function Subscriptions.streamCursor(service: Player, mouseX: number, mouseY: num
     local subscribers = subscriptions[service]
 
     if not subscribers then
-        remotes.Spectate.ToggleService:InvokeClient(service, false)
+        Remotes.Spectate.ToggleService.invoke(service, false)
 
         return
     end
 
     for _, subscriber in subscribers do
-        remotes.Spectate.StreamCursor:FireClient(subscriber, mouseX, mouseY)
+        Remotes.Spectate.StreamCursor.fireClient(subscriber, mouseX, mouseY)
     end
 end
 
@@ -148,11 +148,11 @@ function Subscriptions.simulate(service: Player, option: SimulationOptions, ...:
     local subscribers = subscriptions[service]
 
     if not subscribers then
-        remotes.Spectate.ToggleService:InvokeClient(service, false)
+        Remotes.Spectate.ToggleService.invoke(service, false)
     end
 
     for _, subscriber in subscribers do
-        remotes.Spectate.SimulateActions:FireClient(subscriber, option, ...)
+        Remotes.Spectate.SimulateActions.fireClient(subscriber, option, ...)
     end
 end
 

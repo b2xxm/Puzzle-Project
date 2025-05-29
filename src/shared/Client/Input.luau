@@ -9,6 +9,7 @@ local Types = require(shared.Types)
 
 
 type InputMethod = Types.InputMethod
+
 type ActionCallback = (name: string, state: Enum.UserInputState, input: InputObject) -> Enum.ContextActionResult
 type RegisterDetails = { callback: ActionCallback, priority: number, inputs: { InputMethod } }
 

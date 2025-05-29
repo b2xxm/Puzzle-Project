@@ -1,7 +1,7 @@
 return {
     game = {
         intermissionDuration = 2,
-        maxGameDuration = 120
+        maxGameDuration = 1000
     },
 
     board = {
