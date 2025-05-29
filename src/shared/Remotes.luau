@@ -27,12 +27,12 @@ type ToClient<T...> = {
     onClientEvent: (callback: (T...) -> ()) -> ()
 }
 
-type ServerAsync<T..., R...> = {
+type ServerFunction<T..., R...> = {
     invoke: (T...) -> R...,
     onInvoke: (callback: (player: Player, T...) -> R...) -> ()
 }
 
-type ClientAsync<T..., R...> = {
+type ClientFunction<T..., R...> = {
     invoke: (player: Player, T...) -> R...,
     onInvoke: (callback: (T...) -> R...) -> ()
 }
@@ -86,7 +86,7 @@ local function wrapEvent<T...>(remote: RemoteEvent, mode: Mode): ToServerClient<
 end
 
 
-local function wrapAsync<T..., R...>(remote: RemoteFunction, context: Context): ServerAsync<T..., R...> | ClientAsync<T..., R...>
+local function wrapFunction<T..., R...>(remote: RemoteFunction, context: Context): ServerFunction<T..., R...> | ClientFunction<T..., R...>
     if context == "server" then
         return {
             invoke = function(...: T...): R...
@@ -118,9 +118,9 @@ return {
     UpdateFinishers = wrapEvent(remotes.UpdateFinishers, "client") :: ToClient<Player>,
     
     Spectate = {
-        Subscribe = wrapAsync(remotes.Spectate.Subscribe, "server") :: ServerAsync<(string), (Board?, ReservedPieces?)>,
-        Unsubscribe = wrapAsync(remotes.Spectate.Unsubscribe, "server") :: ServerAsync<(string), (Board?, ReservedPieces?)>,
-        ToggleService = wrapAsync(remotes.Spectate.ToggleService, "client") :: ClientAsync<(boolean), (Board?, ReservedPieces?)>,
+        Subscribe = wrapFunction(remotes.Spectate.Subscribe, "server") :: ServerFunction<(string), (Board?, ReservedPieces?)>,
+        Unsubscribe = wrapFunction(remotes.Spectate.Unsubscribe, "server") :: ServerFunction<(string), (Board?, ReservedPieces?)>,
+        ToggleService = wrapFunction(remotes.Spectate.ToggleService, "client") :: ClientFunction<(boolean), (Board?, ReservedPieces?)>,
         StreamCursor = wrapEvent(remotes.Spectate.StreamCursor, "shared") :: ToServerClient<number, number>,
         SimulateActions = wrapEvent(remotes.Spectate.SimulateActions, "shared") :: ToServerClient<(SimulateOptions, ...any)>
     }
