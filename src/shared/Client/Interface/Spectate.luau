@@ -89,7 +89,7 @@ local function update(input: InputObject): ()
     end
 
     if previousHover == currentHover then
-        return Enum.ContextActionResult.Pass
+        return
     end
 
     if previousHover then
@@ -151,7 +151,7 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
     local newSelectRow = newSelection.Parent :: Instance
 
     local indicator = newSelection:WaitForChild("Indicator") :: GuiObject
-    indicator.Visible = newSelectRow.Name ~= player.Name
+    indicator.Visible = not selectedSelf
 
     if oldSelection then
         local oldSelectionRow = oldSelection.Parent :: Instance
@@ -159,13 +159,14 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
         local oldIndicator = oldSelection:WaitForChild("Indicator") :: GuiObject
         oldIndicator.Visible = false
 
-        unsubscribe(oldSelectionRow.Name, true)
-        subscribe(newSelectRow.Name)
-    else
+        unsubscribe(oldSelectionRow.Name, not selectedSelf)
+    end
+    
+    if not selectedSelf then
         subscribe(newSelectRow.Name)
     end
 
-    spectating = newSelection
+    spectating = if not selectedSelf then newSelection else nil
 end
 
 
@@ -213,9 +214,7 @@ function Spectate.serviceLeft(service: Player): ()
     local row = spectating.Parent
 
     if row and row.Name == service.Name then
-        unsubscribe(service.Name, false)
-
-        spectating = nil
+        unselect(spectating)
     end
 end
 
@@ -244,20 +243,20 @@ function Spectate.disable(): ()
 end
 
 
-function Spectate.moveMouse(mouseX: number, mouseY: number): ()
-    cursor.Position = UDim2.fromScale(mouseX, mouseY)
-
-    if selectedPiece then
-        selectedPiece.object.Position = cursor.Position
-    end
-end
-
-
 function Spectate.simulate(option: SimulationOptions, ...: any): ()
     local mappedFunction = optionToFunctionMap[option]
 
     if mappedFunction then
         mappedFunction(...)
+    end
+end
+
+
+function Spectate.moveMouse(mouseX: number, mouseY: number): ()
+    cursor.Position = UDim2.fromScale(mouseX, mouseY)
+
+    if selectedPiece then
+        selectedPiece.object.Position = cursor.Position
     end
 end
 
