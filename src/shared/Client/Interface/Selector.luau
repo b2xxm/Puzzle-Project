@@ -343,7 +343,7 @@ end
 
 function Selector.disable(): ()
     if deviceType == "Desktop" then
-        Input.enable("PieceSelector")
+        Input.disable("PieceSelector")
         
         -- make disable mobile selector
     end
