@@ -252,7 +252,17 @@ function Spectate.simulate(option: SimulationOptions, ...: any): ()
 end
 
 
-function Spectate.moveMouse(mouseX: number, mouseY: number): ()
+function Spectate.moveMouse(buf: buffer): ()
+    --[[ decompression with error range [0 to +3] || 2 bytes -> 8 bytes
+        arbitrary value: 1e3 [16 d.p. is too precise, and 3 is enough]
+        
+        30 * 4 = 120
+        120 -> 0.12 (original was 0.123...)
+    ]]
+    
+    local readX, readY = buffer.readu8(buf, 0), buffer.readu8(buf, 0)
+    local mouseX, mouseY = (readX * 4) / 1e3, (readY * 4) / 1e3
+
     cursor.Position = UDim2.fromScale(mouseX, mouseY)
 
     if selectedPiece then

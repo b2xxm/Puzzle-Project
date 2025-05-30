@@ -266,8 +266,21 @@ function Selector.action(state: Enum.UserInputState, inputType: Enum.UserInputTy
         end
     else
         if shouldBroadcast then
+            --[[ compression with error range [0 to +3] || 8 bytes -> 2 bytes
+                arbitrary value: 1e3 [16 d.p. is too precise, and 3 is enough]
+
+                0.123... -> 0.123 -> 123 [takes up 4 bytes]
+                123 / 4 -> 30.75 (automatically truncated when set to buffer) [30 can be fit into 1 byte]
+            ]]
+            
             local scaleX, scaleY = InterfaceUtils.toScalePosition(position.X, position.Y)
-            Remotes.Spectate.StreamCursor.fireServer(scaleX, scaleY)
+            local compressedX, compressedY = math.round(scaleX * 1e3) / 4, math.round(scaleY * 1e3) / 4
+            
+            local buf = buffer.create(2)
+            buffer.writeu8(buf, 0, compressedX)
+            buffer.writeu8(buf, 1, compressedY)
+
+            Remotes.Spectate.StreamCursor.fireServer(buf)
         end
 
         if state ~= Enum.UserInputState.Change or not selected then

@@ -129,7 +129,7 @@ function Subscriptions.onSubmit(service: Player): ()
 end
 
 
-function Subscriptions.streamCursor(service: Player, mouseX: number, mouseY: number): ()
+function Subscriptions.streamCursor(service: Player, buf: buffer): ()
     local subscribers = subscriptions[service]
 
     if not subscribers then
@@ -139,7 +139,7 @@ function Subscriptions.streamCursor(service: Player, mouseX: number, mouseY: num
     end
 
     for _, subscriber in subscribers do
-        Remotes.Spectate.StreamCursor.fireClient(subscriber, mouseX, mouseY)
+        Remotes.Spectate.StreamCursor.fireClient(subscriber, buf)
     end
 end
 

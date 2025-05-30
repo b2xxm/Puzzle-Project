@@ -121,7 +121,7 @@ return {
         Subscribe = wrapFunction(remotes.Spectate.Subscribe, "server") :: ServerFunction<(string), (Board?, ReservedPieces?)>,
         Unsubscribe = wrapFunction(remotes.Spectate.Unsubscribe, "server") :: ServerFunction<(string), (Board?, ReservedPieces?)>,
         ToggleService = wrapFunction(remotes.Spectate.ToggleService, "client") :: ClientFunction<(boolean), (Board?, ReservedPieces?)>,
-        StreamCursor = wrapEvent(remotes.Spectate.StreamCursor, "shared") :: ToServerClient<number, number>,
+        StreamCursor = wrapEvent(remotes.Spectate.StreamCursor, "shared") :: ToServerClient<buffer>,
         SimulateActions = wrapEvent(remotes.Spectate.SimulateActions, "shared") :: ToServerClient<(SimulateOptions, ...any)>
     }
 }
