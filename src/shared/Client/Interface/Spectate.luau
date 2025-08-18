@@ -149,6 +149,7 @@ end
 
 local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
     local newSelectRow = newSelection.Parent :: Instance
+    local selectedSelf = newSelectRow.Name == player.Name
 
     local indicator = newSelection:WaitForChild("Indicator") :: GuiObject
     indicator.Visible = not selectedSelf
@@ -170,10 +171,12 @@ local function selectNew(newSelection: GuiObject, oldSelection: GuiObject?): ()
 end
 
 
-local function unselect(currentSelection: GuiObject): ()
+local function unselect(currentSelection: GuiObject, autoUnsubscribed: boolean): ()
     local row = currentSelection.Parent :: Instance
 
-    unsubscribe(row.Name, false)
+    if not autoUnsubscribed then
+        unsubscribe(row.Name, false)
+    end
 
     local indicator = currentSelection:WaitForChild("Indicator") :: GuiObject
     indicator.Visible = false
@@ -192,7 +195,7 @@ local function action(_: string, state: Enum.UserInputState, input: InputObject)
             if spectating ~= currentHover then
                 selectNew(currentHover, spectating)
             else
-                unselect(spectating :: GuiObject)
+                unselect(spectating :: GuiObject, false)
             end
         end
 
@@ -214,7 +217,7 @@ function Spectate.serviceLeft(service: Player): ()
     local row = spectating.Parent
 
     if row and row.Name == service.Name then
-        unselect(spectating)
+        unselect(spectating, false)
     end
 end
 
@@ -238,7 +241,7 @@ function Spectate.disable(): ()
     end
 
     if spectating then
-        unselect(spectating)
+        unselect(spectating, true)
     end
 end
 
