@@ -33,6 +33,13 @@ local Reserve = {}
 Reserve.reserved = reserved
 
 
+local function init(): ()
+    while camera.ViewportSize.X == 1 and camera.ViewportSize.Y == 1 do
+        camera:GetPropertyChangedSignal("ViewportSize"):Wait()
+    end
+end
+
+
 local function randomPosition(): (number, number)
     local playerGui = player.PlayerGui
     local gameUi = playerGui:WaitForChild("GameUi")
@@ -95,7 +102,7 @@ function Reserve.generatePiece(shape: PieceShape, pieceType: PieceType): PieceOb
     local cellSizeY = (grid.AbsoluteSize.Y - (padding * (rows - 1))) / rows
     local boundSizeX = ((cellSizeX + padding) * pieceData.metadata.width) - padding
     local boundSizeY = ((cellSizeY + padding) * pieceData.metadata.height) - padding
-    
+
     local piecePrefab = prefabs.Piece:WaitForChild("Bounds") :: GuiObject
     local piece = piecePrefab:Clone()
     piece.Size = UDim2.fromScale(0, boundSizeY / camera.ViewportSize.Y)
@@ -159,6 +166,9 @@ function Reserve.findPieceByType(pieceType: PieceType): (PieceObjectInfo?, numbe
 
     return
 end
+
+
+init()
 
 
 return Reserve
